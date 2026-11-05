@@ -1,0 +1,1652 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 — Discovering Hidden Structures</title>
+
+<style>
+:root {
+  --blue:#2457d6;
+  --blue-dark:#173b9b;
+  --light:#edf3ff;
+  --text:#202b3c;
+  --muted:#68758a;
+  --border:#e3e9f3;
+  --bg:#f7f9fd;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7
+}
+.progress{
+  position:fixed;top:0;left:0;height:4px;width:0;
+  background:var(--blue);z-index:100
+}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:255px;background:white;border-right:1px solid var(--border);
+  padding:28px 18px;position:fixed;height:100vh;overflow-y:auto
+}
+.brand{font-size:17px;font-weight:750;color:var(--blue)}
+.course-label{font-size:12px;color:var(--muted);margin:8px 0 30px}
+.sidebar h4{
+  font-size:11px;text-transform:uppercase;color:#98a3b5;
+  letter-spacing:1.2px;margin:20px 10px 10px
+}
+.sidebar a{
+  display:block;text-decoration:none;color:#59667b;font-size:13px;
+  padding:9px 11px;border-radius:8px;margin:3px 0
+}
+.sidebar a:hover,.sidebar a.active{background:var(--light);color:var(--blue)}
+.main{
+  margin-left:255px;width:calc(100% - 255px);
+  padding:35px 6%;max-width:1500px
+}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin-bottom:35px;flex-wrap:wrap
+}
+.topbar span{font-size:13px;color:var(--muted)}
+.hero{
+  background:linear-gradient(120deg,#eaf1ff,#f7f9ff);
+  border:1px solid #dce7ff;border-radius:20px;
+  padding:42px;margin-bottom:30px
+}
+.chapter-label{
+  color:var(--blue);font-weight:700;font-size:13px;
+  letter-spacing:1px;text-transform:uppercase
+}
+.hero h1{
+  font-size:clamp(28px,4vw,43px);line-height:1.2;
+  margin:12px 0;color:#182b54
+}
+.hero p{color:#65738b;max-width:720px}
+.hero-meta{margin-top:25px;font-size:12px;color:#62718b}
+.section{
+  background:white;border:1px solid var(--border);
+  border-radius:16px;padding:28px;margin-bottom:22px;
+  scroll-margin-top:25px
+}
+.section h2{font-size:22px;margin-bottom:15px}
+.section h3{font-size:16px;margin:20px 0 8px}
+.section p{color:#59667b;margin-bottom:12px}
+.section ul,.section ol{padding-left:22px;color:#59667b;margin:12px 0}
+.section li{margin-bottom:7px}
+.grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:14px;margin:18px 0
+}
+.info-card{
+  background:#f8faff;border:1px solid var(--border);
+  border-radius:12px;padding:17px
+}
+.info-card h3{color:var(--blue);margin:0 0 8px}
+.info-card p{font-size:13px;margin:0}
+.formula{
+  background:#f0f5ff;border-left:4px solid var(--blue);
+  border-radius:8px;padding:18px;margin:16px 0;
+  color:#1b3d91;font-family:Georgia,serif;
+  font-size:18px;text-align:center;overflow-x:auto
+}
+.note{
+  background:#f5f8fc;border:1px solid var(--border);
+  border-radius:10px;padding:15px;color:#59667b;
+  font-size:13px;margin:15px 0
+}
+.diagram{
+  display:flex;justify-content:center;align-items:center;
+  flex-wrap:wrap;gap:12px;padding:25px 5px
+}
+.node{
+  background:var(--light);border:1px solid #cbdcff;
+  border-radius:12px;padding:15px 20px;text-align:center;
+  color:var(--blue-dark);font-weight:700
+}
+.arrow{color:var(--blue);font-size:23px}
+table{border-collapse:collapse;width:100%;margin:18px 0;font-size:13px}
+th,td{border:1px solid var(--border);padding:12px;text-align:left}
+th{background:#f0f5ff;color:#24458d}
+tr:nth-child(even){background:#fafbfe}
+.code{
+  background:#172238;color:#dce8ff;border-radius:12px;
+  padding:20px;overflow-x:auto;font-family:monospace;
+  font-size:12px;line-height:1.8;margin:15px 0;white-space:pre
+}
+.interactive{
+  background:#f8faff;border:1px solid #dce7ff;
+  border-radius:14px;padding:22px;margin-top:18px
+}
+.interactive label{display:block;font-size:13px;font-weight:650;margin:12px 0 5px}
+.interactive input,.interactive select{
+  width:100%;padding:11px;border:1px solid #d7dfed;
+  border-radius:8px;background:white;color:var(--text);font-size:14px
+}
+button{
+  border:none;background:var(--blue);color:white;
+  padding:11px 18px;border-radius:8px;cursor:pointer;
+  font-weight:650;margin-top:15px
+}
+button:hover{background:var(--blue-dark)}
+.result{
+  background:white;border:1px solid var(--border);
+  border-radius:10px;padding:16px;margin-top:15px;font-size:14px
+}
+.status{font-weight:750;font-size:19px;margin:8px 0}
+.good{color:#16804a}
+.warning{color:#b56a14}
+.diagram-canvas{
+  width:100%;height:250px;background:#f8faff;
+  border:1px solid var(--border);border-radius:12px;margin:15px 0
+}
+.quiz-question{
+  border:1px solid var(--border);padding:17px;
+  border-radius:12px;margin:14px 0
+}
+.quiz-question p{font-weight:650;color:var(--text)}
+.quiz-question label{
+  display:block;font-size:13px;color:#59667b;margin:9px 0;cursor:pointer
+}
+.quiz-question input{margin-right:7px}
+.quiz-result{font-weight:700;color:var(--blue);margin-top:15px}
+.footer{text-align:center;padding:30px;color:var(--muted);font-size:12px}
+.footer a{color:var(--blue);text-decoration:none}
+@media(max-width:850px){
+  .sidebar{display:none}
+  .main{margin-left:0;width:100%;padding:20px}
+  .grid{grid-template-columns:1fr}
+  .hero{padding:27px}
+}
+</style>
+</head>
+
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">QAIRU · AIF</div>
+  <div class="course-label">AI Fundamentals · 2026</div>
+
+  <h4>Chapter navigation</h4>
+  <a href="#overview">01 · Overview</a>
+  <a href="#foundations">02 · Unsupervised Learning</a>
+  <a href="#kmeans">03 · K-Means Clustering</a>
+  <a href="#dbscan">04 · DBSCAN</a>
+  <a href="#evaluation">05 · Clustering Evaluation</a>
+  <a href="#reduction">06 · Dimensionality Reduction</a>
+  <a href="#pca">07 · PCA</a>
+  <a href="#nonlinear">08 · t-SNE & UMAP</a>
+  <a href="#anomaly">09 · Anomaly Detection</a>
+  <a href="#python">10 · Python Implementation</a>
+  <a href="#quiz">11 · Knowledge Check</a>
+
+  <h4>Course</h4>
+  <a href="../index.html">← Back to Dashboard</a>
+  <a href="chapter7.html">← Previous Chapter</a>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+  <span>QAIRU — Qazaq AI Research University</span>
+  <span>AIF · Academic Year 2026</span>
+</div>
+
+<div class="hero" id="overview">
+  <div class="chapter-label">Chapter 08 · Unsupervised Learning</div>
+  <h1>Discovering Hidden Structures</h1>
+  <p>
+    Explore how Artificial Intelligence discovers hidden patterns
+    in unlabeled data through clustering, dimensionality reduction,
+    and anomaly detection. Learn how machines organize information
+    and identify unusual observations without predefined answers.
+  </p>
+  <div class="hero-meta">
+    AI FUNDAMENTALS · PREPARED BY ABILASHIM MIRAS ·
+    PROFESSOR GULZHAN USKENBAYEVA
+  </div>
+</div>
+
+<section class="section" id="foundations">
+  <h2>01. Foundations of Unsupervised Learning</h2>
+
+  <p>
+    Unsupervised Learning is a branch of Machine Learning that discovers
+    patterns, relationships, and hidden structures in data without
+    using predefined target labels.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Unlabeled Data</h3>
+      <p>
+        The dataset contains input features X but does not contain
+        known target labels y.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Pattern Discovery</h3>
+      <p>
+        Algorithms identify similarities, groups, relationships,
+        and unusual observations.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Exploration</h3>
+      <p>
+        Results are interpreted using internal metrics, visualization,
+        stability checks, and domain knowledge.
+      </p>
+    </div>
+  </div>
+
+  <h3>Supervised vs. Unsupervised Learning</h3>
+
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>Supervised Learning</th>
+      <th>Unsupervised Learning</th>
+    </tr>
+    <tr>
+      <td>Training data</td>
+      <td>Labeled data</td>
+      <td>Unlabeled data</td>
+    </tr>
+    <tr>
+      <td>Target variable</td>
+      <td>Available (y)</td>
+      <td>Not available</td>
+    </tr>
+    <tr>
+      <td>Main objective</td>
+      <td>Predict known outcomes</td>
+      <td>Discover hidden structures</td>
+    </tr>
+    <tr>
+      <td>Evaluation</td>
+      <td>Accuracy, precision, recall</td>
+      <td>Internal metrics and interpretation</td>
+    </tr>
+    <tr>
+      <td>Examples</td>
+      <td>Classification, regression</td>
+      <td>Clustering, PCA, anomaly detection</td>
+    </tr>
+  </table>
+
+  <h3>Three Core Task Families</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>01. Clustering</h3>
+      <p>
+        Groups similar observations together based on their features.
+        Example: customer segmentation.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>02. Dimensionality Reduction</h3>
+      <p>
+        Compresses high-dimensional data into fewer coordinates
+        while preserving useful information.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>03. Anomaly Detection</h3>
+      <p>
+        Identifies unusual observations that differ significantly
+        from normal data patterns.
+      </p>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="node">Unlabeled Data</div>
+    <div class="arrow">→</div>
+    <div class="node">Unsupervised Algorithm</div>
+    <div class="arrow">→</div>
+    <div class="node">Hidden Patterns</div>
+  </div>
+
+  <div class="note">
+    <strong>Important:</strong> Unsupervised learning does not have
+    a simple accuracy score because there are no predefined correct
+    labels. Evaluation often requires multiple metrics and human
+    interpretation.
+  </div>
+</section>
+
+<section class="section" id="kmeans">
+  <h2>02. K-Means Clustering</h2>
+
+  <p>
+    K-Means is a partition-based clustering algorithm that divides
+    a dataset into K groups. Each group is represented by a centroid,
+    which is the mean position of its assigned observations.
+  </p>
+
+  <h3>How K-Means Works</h3>
+
+  <ol>
+    <li>Choose the number of clusters K.</li>
+    <li>Initialize K centroids.</li>
+    <li>Assign each data point to its nearest centroid.</li>
+    <li>Calculate new centroids using the mean of assigned points.</li>
+    <li>Repeat assignment and updating until the algorithm converges.</li>
+  </ol>
+
+  <div class="diagram">
+    <div class="node">Choose K</div>
+    <div class="arrow">→</div>
+    <div class="node">Initialize Centroids</div>
+    <div class="arrow">→</div>
+    <div class="node">Assign Points</div>
+    <div class="arrow">→</div>
+    <div class="node">Update Centroids</div>
+  </div>
+
+  <h3>K-Means Objective Function</h3>
+
+  <p>
+    K-Means minimizes the Within-Cluster Sum of Squares (Inertia).
+    It measures the squared distance between each data point
+    and the centroid of its assigned cluster.
+  </p>
+
+  <div class="formula">
+    J = Σₖ₌₁ᴷ Σₓᵢ∈Cₖ ||xᵢ − μₖ||²
+  </div>
+
+  <p>
+    Where:
+  </p>
+  <ul>
+    <li>K = number of clusters.</li>
+    <li>Cₖ = the set of observations in cluster k.</li>
+    <li>xᵢ = an individual data point.</li>
+    <li>μₖ = centroid of cluster k.</li>
+  </ul>
+
+  <h3>Advantages and Limitations</h3>
+
+  <table>
+    <tr><th>Advantages</th><th>Limitations</th></tr>
+    <tr>
+      <td>Simple and easy to understand.</td>
+      <td>Requires choosing K in advance.</td>
+    </tr>
+    <tr>
+      <td>Computationally efficient.</td>
+      <td>Sensitive to outliers.</td>
+    </tr>
+    <tr>
+      <td>Scales well to large datasets.</td>
+      <td>Works best with roughly spherical clusters.</td>
+    </tr>
+    <tr>
+      <td>Useful for customer segmentation.</td>
+      <td>Sensitive to feature scaling and initialization.</td>
+    </tr>
+  </table>
+
+  <h3>Interactive: Choosing the Number of Clusters</h3>
+
+  <p>
+    Explore how the number of clusters affects the complexity
+    of a K-Means model.
+  </p>
+
+  <div class="interactive">
+    <label for="clusterK">Number of clusters (K)</label>
+    <input type="range" id="clusterK" min="1" max="10" value="3">
+
+    <div class="result" id="clusterResult">
+      Selected K: 3<br>
+      Three clusters will be created.
+    </div>
+  </div>
+</section>
+
+<section class="section" id="dbscan">
+  <h2>03. DBSCAN — Density-Based Clustering</h2>
+
+  <p>
+    DBSCAN (Density-Based Spatial Clustering of Applications with Noise)
+    identifies clusters by finding regions with sufficiently high
+    concentrations of data points.
+  </p>
+
+  <p>
+    Unlike K-Means, DBSCAN does not require the number of clusters
+    to be specified in advance. It can also identify irregularly
+    shaped clusters and observations considered noise.
+  </p>
+
+  <h3>Two Main Hyperparameters</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>ε (Epsilon)</h3>
+      <p>
+        Defines the radius of the neighborhood around a data point.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>min_samples</h3>
+      <p>
+        Defines the minimum number of nearby observations required
+        to form a dense region.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Noise</h3>
+      <p>
+        Observations that do not belong to a density-connected cluster
+        are labeled -1.
+      </p>
+    </div>
+  </div>
+
+  <h3>Three Types of Points</h3>
+
+  <table>
+    <tr><th>Point Type</th><th>Definition</th></tr>
+    <tr>
+      <td>Core Point</td>
+      <td>Has at least min_samples observations in its ε-neighborhood, including itself.</td>
+    </tr>
+    <tr>
+      <td>Border Point</td>
+      <td>Has fewer than min_samples nearby observations but lies within the neighborhood of a core point.</td>
+    </tr>
+    <tr>
+      <td>Noise Point</td>
+      <td>Cannot be assigned to a cluster under the DBSCAN density rules.</td>
+    </tr>
+  </table>
+
+  <h3>DBSCAN vs. K-Means</h3>
+
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>K-Means</th>
+      <th>DBSCAN</th>
+    </tr>
+    <tr>
+      <td>Number of clusters</td>
+      <td>Must specify K</td>
+      <td>Discovered automatically</td>
+    </tr>
+    <tr>
+      <td>Cluster shape</td>
+      <td>Generally spherical</td>
+      <td>Arbitrary shapes</td>
+    </tr>
+    <tr>
+      <td>Outliers</td>
+      <td>Sensitive to outliers</td>
+      <td>Can identify noise</td>
+    </tr>
+    <tr>
+      <td>Main parameters</td>
+      <td>K</td>
+      <td>ε and min_samples</td>
+    </tr>
+  </table>
+
+  <h3>When Is DBSCAN Useful?</h3>
+
+  <ul>
+    <li>Geographical location analysis.</li>
+    <li>Identifying irregularly shaped data groups.</li>
+    <li>Discovering unusual observations.</li>
+    <li>Spatial and sensor data analysis.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Limitation:</strong> DBSCAN can struggle when clusters
+    have very different densities. Its performance is also affected
+    by high-dimensional data and feature scaling.
+  </div>
+</section>
+
+<section class="section" id="evaluation">
+  <h2>04. Evaluating Clustering Performance</h2>
+
+  <p>
+    Since unsupervised learning does not have predefined target labels,
+    clustering algorithms are evaluated using internal measures
+    of compactness and separation.
+  </p>
+
+  <h3>Elbow Method</h3>
+
+  <p>
+    The Elbow Method helps select an appropriate K for K-Means.
+    It compares the number of clusters with the resulting inertia.
+  </p>
+
+  <ol>
+    <li>Run K-Means with different values of K.</li>
+    <li>Calculate inertia for each value.</li>
+    <li>Plot K against inertia.</li>
+    <li>Look for the point where the decrease becomes less significant.</li>
+  </ol>
+
+  <div class="note">
+    Increasing K always reduces or maintains inertia.
+    If K equals the number of observations, each observation
+    can form its own cluster and inertia becomes zero.
+    Therefore, the lowest inertia is not automatically the best model.
+  </div>
+
+  <h3>Silhouette Coefficient</h3>
+
+  <p>
+    The Silhouette Coefficient measures how well an observation
+    fits into its own cluster compared with the nearest alternative cluster.
+  </p>
+
+  <div class="formula">
+    s(i) = [b(i) − a(i)] / max(a(i), b(i))
+  </div>
+
+  <ul>
+    <li>a(i) = average distance to observations in the same cluster.</li>
+    <li>b(i) = average distance to observations in the nearest alternative cluster.</li>
+    <li>s(i) = silhouette score for observation i.</li>
+  </ul>
+
+  <table>
+    <tr><th>Score</th><th>Interpretation</th></tr>
+    <tr><td>Close to +1</td><td>Well-separated and compact clustering.</td></tr>
+    <tr><td>Close to 0</td><td>Observation lies near a cluster boundary.</td></tr>
+    <tr><td>Below 0</td><td>Observation may be assigned to the wrong cluster.</td></tr>
+  </table>
+
+  <h3>Interactive Silhouette Score Explorer</h3>
+
+  <div class="interactive">
+    <label for="silhouette">Choose a Silhouette Score</label>
+    <input type="range" id="silhouette" min="-100" max="100" value="75">
+
+    <div class="result" id="silhouetteResult">
+      Score: 0.75
+      <div class="status good">Well-separated clusters</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="reduction">
+  <h2>05. Dimensionality Reduction</h2>
+
+  <p>
+    Dimensionality Reduction transforms data with many features
+    into a smaller number of dimensions while attempting to preserve
+    important information.
+  </p>
+
+  <h3>Why Reduce Dimensions?</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Visualization</h3>
+      <p>
+        Converts complex datasets into 2D or 3D representations
+        that humans can explore.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Efficiency</h3>
+      <p>
+        Reduces computational requirements and storage needs.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Noise Reduction</h3>
+      <p>
+        Can remove redundant or less informative dimensions.
+      </p>
+    </div>
+  </div>
+
+  <h3>The Curse of Dimensionality</h3>
+
+  <p>
+    As the number of dimensions increases, the volume of the feature
+    space grows rapidly. Data points become increasingly sparse,
+    and distance-based methods can become less reliable.
+  </p>
+
+  <div class="formula">
+    Feature Space Volume ∝ Lᵈ
+  </div>
+
+  <p>
+    Here, L represents the length of each dimension and d represents
+    the number of dimensions.
+  </p>
+
+  <div class="note">
+    <strong>Example:</strong> A dataset with 2 features is easier
+    to visualize than a dataset with 500 features. Dimensionality
+    reduction helps represent the complex dataset using fewer coordinates.
+  </div>
+
+  <h3>Linear vs. Nonlinear Methods</h3>
+
+  <table>
+    <tr><th>Linear Methods</th><th>Nonlinear Methods</th></tr>
+    <tr>
+      <td>Preserve linear combinations of original features.</td>
+      <td>Can represent complex nonlinear relationships.</td>
+    </tr>
+    <tr>
+      <td>Example: PCA.</td>
+      <td>Examples: t-SNE and UMAP.</td>
+    </tr>
+    <tr>
+      <td>Generally computationally efficient.</td>
+      <td>Often require more parameter tuning.</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="pca">
+  <h2>06. Principal Component Analysis (PCA)</h2>
+
+  <p>
+    Principal Component Analysis is a linear dimensionality reduction
+    technique that transforms original features into a smaller set
+    of orthogonal components.
+  </p>
+
+  <p>
+    PCA identifies directions of maximum variance in the dataset.
+    These directions are called principal components.
+  </p>
+
+  <h3>How PCA Works</h3>
+
+  <ol>
+    <li>Standardize the input features when their scales differ.</li>
+    <li>Center the data by subtracting feature means.</li>
+    <li>Calculate the covariance matrix.</li>
+    <li>Find eigenvectors and eigenvalues.</li>
+    <li>Sort components by descending eigenvalues.</li>
+    <li>Select the desired number of components.</li>
+    <li>Project the original data onto the selected components.</li>
+  </ol>
+
+  <h3>Covariance Matrix</h3>
+
+  <div class="formula">
+    Σ = (1 / (n − 1)) XcᵀXc
+  </div>
+
+  <p>
+    Where Xc is the centered data matrix and n is the number
+    of observations.
+  </p>
+
+  <h3>Eigenvalue Decomposition</h3>
+
+  <div class="formula">
+    Σv = λv
+  </div>
+
+  <ul>
+    <li>v represents an eigenvector and a principal direction.</li>
+    <li>λ represents the eigenvalue and the variance along that direction.</li>
+  </ul>
+
+  <h3>Explained Variance Ratio</h3>
+
+  <div class="formula">
+    Explained Variance Ratio = λᵢ / Σⱼ λⱼ
+  </div>
+
+  <p>
+    The explained variance ratio indicates how much of the total
+    variance is captured by each principal component.
+  </p>
+
+  <h3>Example: Retaining 95% Variance</h3>
+
+  <p>
+    Suppose the first components explain the following proportions
+    of total variance:
+  </p>
+
+  <div class="bar-row">
+    <div class="bar-label"><span>PC1</span><strong>50%</strong></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>PC2</span><strong>30%</strong></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:30%"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>PC3</span><strong>15%</strong></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>PC4</span><strong>5%</strong></div>
+    <div class="bar-bg"><div class="bar-fill" style="width:5%"></div></div>
+  </div>
+
+  <div class="formula">
+    50% + 30% + 15% = 95%
+  </div>
+
+  <div class="note">
+    Selecting the first three principal components preserves 95%
+    of the total variance in this example, reducing four dimensions
+    to three.
+  </div>
+
+  <h3>Advantages and Limitations of PCA</h3>
+
+  <table>
+    <tr><th>Advantages</th><th>Limitations</th></tr>
+    <tr>
+      <td>Fast and computationally efficient.</td>
+      <td>Captures only linear relationships.</td>
+    </tr>
+    <tr>
+      <td>Reduces redundant features.</td>
+      <td>Components may be difficult to interpret.</td>
+    </tr>
+    <tr>
+      <td>Helps visualize complex datasets.</td>
+      <td>Sensitive to feature scaling and outliers.</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="nonlinear">
+  <h2>07. Nonlinear Techniques: t-SNE & UMAP</h2>
+
+  <p>
+    Nonlinear dimensionality reduction techniques help represent
+    complex data structures that cannot always be captured by
+    linear methods such as PCA.
+  </p>
+
+  <h3>t-SNE (t-Distributed Stochastic Neighbor Embedding)</h3>
+
+  <p>
+    t-SNE is a nonlinear dimensionality reduction technique that
+    converts similarities between high-dimensional observations
+    into probabilities and attempts to preserve local neighborhoods
+    in a low-dimensional representation.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Local Structure</h3>
+      <p>
+        Focuses on keeping nearby observations close together
+        in the visualization.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Perplexity</h3>
+      <p>
+        Controls the effective neighborhood scale and influences
+        the local structure being considered.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Visualization</h3>
+      <p>
+        Commonly used to visualize complex datasets in 2D or 3D.
+      </p>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Important t-SNE limitation:</strong> Distances between
+    separate clusters should not be interpreted literally.
+    Cluster sizes and global distances can be distorted.
+  </div>
+
+  <h3>UMAP (Uniform Manifold Approximation and Projection)</h3>
+
+  <p>
+    UMAP is a nonlinear dimensionality reduction technique based
+    on manifold learning and graph theory.
+  </p>
+
+  <p>
+    It constructs a graph representing relationships between
+    nearby observations and optimizes a low-dimensional
+    representation of that structure.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>n_neighbors</h3>
+      <p>
+        Controls the approximate local neighborhood size
+        used to construct the graph.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>min_dist</h3>
+      <p>
+        Controls how tightly observations can be packed
+        together in the low-dimensional representation.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Performance</h3>
+      <p>
+        Often scales better than t-SNE on larger datasets
+        and can preserve useful local and broader structure.
+      </p>
+    </div>
+  </div>
+
+  <h3>Comparison: PCA vs. t-SNE vs. UMAP</h3>
+
+  <table>
+    <tr>
+      <th>Feature</th>
+      <th>PCA</th>
+      <th>t-SNE</th>
+      <th>UMAP</th>
+    </tr>
+    <tr>
+      <td>Method</td>
+      <td>Linear</td>
+      <td>Nonlinear</td>
+      <td>Nonlinear</td>
+    </tr>
+    <tr>
+      <td>Main focus</td>
+      <td>Maximum variance</td>
+      <td>Local neighborhoods</td>
+      <td>Local and broader structure</td>
+    </tr>
+    <tr>
+      <td>Common parameters</td>
+      <td>n_components</td>
+      <td>perplexity</td>
+      <td>n_neighbors, min_dist</td>
+    </tr>
+    <tr>
+      <td>Speed</td>
+      <td>Usually fast</td>
+      <td>Often slower</td>
+      <td>Often faster than t-SNE</td>
+    </tr>
+    <tr>
+      <td>Typical use</td>
+      <td>Compression</td>
+      <td>Visualization</td>
+      <td>Visualization and exploration</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    t-SNE and UMAP are especially useful for exploring complex
+    high-dimensional data. However, a 2D visualization should not
+    automatically be treated as proof that the displayed clusters
+    represent meaningful real-world categories.
+  </div>
+</section>
+
+<section class="section" id="anomaly">
+  <h2>08. Anomaly Detection</h2>
+
+  <p>
+    Anomaly Detection identifies observations that differ significantly
+    from the general patterns of a dataset.
+  </p>
+
+  <p>
+    Anomalies may represent rare events, unusual combinations of features,
+    measurement errors, or unexpected system behavior.
+  </p>
+
+  <h3>Types of Anomalies</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Point Anomaly</h3>
+      <p>
+        An individual observation that is significantly different
+        from the rest of the dataset.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Contextual Anomaly</h3>
+      <p>
+        An observation that is unusual in a specific context,
+        such as a temperature reading for a particular season.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Collective Anomaly</h3>
+      <p>
+        A group or sequence of observations that is unusual
+        when considered together.
+      </p>
+    </div>
+  </div>
+
+  <h3>Multivariate Anomalies</h3>
+
+  <p>
+    A multivariate anomaly occurs when a combination of features
+    is unusual, even though each individual feature may appear
+    normal when examined separately.
+  </p>
+
+  <div class="note">
+    <strong>Example:</strong> A machine may have normal temperature
+    and normal vibration individually. However, a particular combination
+    of temperature and vibration may be unusual for its operating state.
+  </div>
+
+  <h3>Isolation Forest</h3>
+
+  <p>
+    Isolation Forest is an anomaly detection algorithm based on
+    random partitioning of the feature space using decision trees.
+  </p>
+
+  <p>
+    The main idea is that unusual observations are easier to isolate
+    than common observations. They generally require fewer random
+    splits to become isolated.
+  </p>
+
+  <h3>How Isolation Forest Works</h3>
+
+  <ol>
+    <li>Randomly select a feature.</li>
+    <li>Randomly select a split value within that feature's range.</li>
+    <li>Divide the observations into smaller groups.</li>
+    <li>Repeat the process using multiple isolation trees.</li>
+    <li>Calculate the average path length for each observation.</li>
+    <li>Assign anomaly scores based on the isolation behavior.</li>
+  </ol>
+
+  <div class="formula">
+    s(x,n) = 2<sup>−E[h(x)] / c(n)</sup>
+  </div>
+
+  <p>
+    Where:
+  </p>
+  <ul>
+    <li>E[h(x)] = average path length of observation x.</li>
+    <li>c(n) = normalization factor based on sample size.</li>
+    <li>n = number of observations in the sample.</li>
+  </ul>
+
+  <div class="formula">
+    c(n) ≈ 2(ln(n−1) + 0.5772156649) − 2(n−1)/n
+  </div>
+
+  <h3>Interpreting Anomaly Scores</h3>
+
+  <table>
+    <tr><th>Score behavior</th><th>Interpretation</th></tr>
+    <tr>
+      <td>Close to 1</td>
+      <td>Strong indication of an anomaly.</td>
+    </tr>
+    <tr>
+      <td>Close to 0.5</td>
+      <td>Observation is relatively difficult to distinguish from normal data.</td>
+    </tr>
+    <tr>
+      <td>Below 0.5</td>
+      <td>Observation is more consistent with normal patterns.</td>
+    </tr>
+  </table>
+
+  <h3>Interactive: Understanding Isolation Forest</h3>
+
+  <div class="interactive">
+    <label for="pathLength">Average path length</label>
+    <input type="range" id="pathLength" min="1" max="20" value="4">
+
+    <label for="sampleSize">Dataset sample size</label>
+    <select id="sampleSize">
+      <option value="50">50 observations</option>
+      <option value="100">100 observations</option>
+      <option value="256" selected>256 observations</option>
+      <option value="500">500 observations</option>
+    </select>
+
+    <button onclick="calculateIsolation()">Calculate Anomaly Score</button>
+
+    <div class="result" id="isolationResult">
+      Average path length: 4<br>
+      Shorter paths generally indicate more unusual observations.
+    </div>
+  </div>
+
+  <h3>Limitations of Anomaly Detection</h3>
+
+  <ul>
+    <li>An unusual observation is not automatically an error.</li>
+    <li>Rare but valid behavior may be flagged as anomalous.</li>
+    <li>Results depend on the dataset and selected parameters.</li>
+    <li>Domain knowledge is important when interpreting results.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Remember:</strong> Statistical anomaly does not necessarily
+    mean system failure. An unusual observation may represent a rare
+    but valid operating condition.
+  </div>
+</section>
+
+<section class="section" id="python">
+  <h2>09. Python Implementation</h2>
+
+  <p>
+    Scikit-Learn provides practical implementations of clustering,
+    dimensionality reduction, and anomaly detection algorithms.
+  </p>
+
+  <h3>Installing Required Libraries</h3>
+
+  <div class="code">pip install numpy pandas matplotlib scikit-learn</div>
+
+  <h3>1. Feature Scaling</h3>
+
+  <p>
+    Feature scaling is especially important for distance-based
+    and variance-based algorithms.
+  </p>
+
+  <div class="code">from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+X_scaled = scaler.fit_transform(X_raw)</div>
+
+  <h3>2. K-Means Clustering</h3>
+
+  <div class="code">from sklearn.cluster import KMeans
+
+kmeans = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
+
+kmeans_labels = kmeans.fit_predict(X_scaled)
+
+print("Cluster labels:", kmeans_labels)
+print("Inertia:", kmeans.inertia_)</div>
+
+  <h3>3. DBSCAN Clustering</h3>
+
+  <div class="code">from sklearn.cluster import DBSCAN
+
+dbscan = DBSCAN(
+    eps=0.35,
+    min_samples=5
+)
+
+dbscan_labels = dbscan.fit_predict(X_scaled)
+
+# -1 indicates noise
+print("DBSCAN labels:", dbscan_labels)</div>
+
+  <h3>4. Principal Component Analysis</h3>
+
+  <div class="code">from sklearn.decomposition import PCA
+
+pca = PCA(
+    n_components=0.95,
+    random_state=42
+)
+
+X_pca = pca.fit_transform(X_scaled)
+
+print("Original dimensions:", X_scaled.shape[1])
+print("Reduced dimensions:", X_pca.shape[1])
+
+print(
+    "Explained variance:",
+    pca.explained_variance_ratio_.sum()
+)</div>
+
+  <h3>5. t-SNE Visualization</h3>
+
+  <div class="code">from sklearn.manifold import TSNE
+
+tsne = TSNE(
+    n_components=2,
+    perplexity=30,
+    learning_rate="auto",
+    init="pca",
+    random_state=42
+)
+
+X_tsne = tsne.fit_transform(X_scaled)</div>
+
+  <div class="note">
+    For t-SNE, the perplexity must be smaller than the number
+    of observations. Its value should be selected with the dataset size
+    and structure in mind.
+  </div>
+
+  <h3>6. UMAP Dimensionality Reduction</h3>
+
+  <div class="code"># Install separately:
+# pip install umap-learn
+
+import umap
+
+reducer = umap.UMAP(
+    n_neighbors=15,
+    min_dist=0.1,
+    n_components=2,
+    random_state=42
+)
+
+X_umap = reducer.fit_transform(X_scaled)</div>
+
+  <h3>7. Isolation Forest</h3>
+
+  <div class="code">from sklearn.ensemble import IsolationForest
+
+iso = IsolationForest(
+    n_estimators=200,
+    contamination=0.05,
+    random_state=42
+)
+
+anomaly_labels = iso.fit_predict(X_scaled)
+
+# 1 = Normal, -1 = Anomaly
+anomaly_scores = iso.decision_function(X_scaled)
+
+print("Labels:", anomaly_labels)
+print("Anomaly scores:", anomaly_scores)</div>
+
+  <h3>Complete Unsupervised Learning Pipeline</h3>
+
+  <div class="diagram">
+    <div class="node">Raw Data</div>
+    <div class="arrow">→</div>
+    <div class="node">Scaling</div>
+    <div class="arrow">→</div>
+    <div class="node">PCA</div>
+    <div class="arrow">→</div>
+    <div class="node">Clustering & Anomaly Detection</div>
+  </div>
+
+  <div class="code">import numpy as np
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.ensemble import IsolationForest
+
+# 1. Scale the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_raw)
+
+# 2. Reduce dimensionality
+pca = PCA(
+    n_components=0.95,
+    random_state=42
+)
+X_pca = pca.fit_transform(X_scaled)
+
+# 3. K-Means
+kmeans = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
+kmeans_labels = kmeans.fit_predict(X_pca)
+
+# 4. DBSCAN
+dbscan = DBSCAN(
+    eps=0.35,
+    min_samples=5
+)
+dbscan_labels = dbscan.fit_predict(X_pca)
+
+# 5. Isolation Forest
+iso = IsolationForest(
+    n_estimators=200,
+    contamination=0.05,
+    random_state=42
+)
+anomaly_labels = iso.fit_predict(X_pca)
+
+# 6. Display results
+print("K-Means:", kmeans_labels)
+print("DBSCAN:", dbscan_labels)
+print("Anomalies:", anomaly_labels)</div>
+
+  <div class="note">
+    The code examples assume that X_raw contains numerical features.
+    You must prepare your dataset before running them. The PCA pipeline
+    shown here is for exploratory unsupervised analysis.
+  </div>
+
+  <h3>Preventing Data Leakage with PCA</h3>
+
+  <p>
+    When PCA is used as preprocessing for supervised learning,
+    it must be fitted only on the training portion of each
+    cross-validation fold.
+  </p>
+
+  <div class="code">from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+
+pipeline = make_pipeline(
+    StandardScaler(),
+    PCA(n_components=0.95),
+    LogisticRegression()
+)
+
+pipeline.fit(X_train, y_train)
+
+predictions = pipeline.predict(X_test)</div>
+
+  <div class="note">
+    Using a Scikit-Learn Pipeline prevents the preprocessing steps
+    from learning information from the test data during cross-validation.
+  </div>
+</section>
+
+<section class="section" id="quiz">
+  <h2>10. Knowledge Check</h2>
+  <p>
+    Test your understanding of Unsupervised Learning,
+    Clustering, Dimensionality Reduction, and Anomaly Detection.
+  </p>
+
+  <div id="quizContainer"></div>
+
+  <button onclick="checkQuiz()">Check Answers</button>
+  <button onclick="resetQuiz()" style="background:#68758a">Try Again</button>
+
+  <div class="quiz-result" id="quizResult"></div>
+</section>
+
+<div class="footer">
+  <p>QAIRU — Qazaq AI Research University</p>
+  <p>AI Fundamentals · Prepared by Abilashim Miras</p>
+  <p style="margin-top:15px">
+    <a href="chapter7.html">← Previous Chapter</a>
+    &nbsp; | &nbsp;
+    <a href="../index.html">Return to Dashboard</a>
+  </p>
+</div>
+
+</main>
+</div>
+
+<script>
+// Reading progress
+window.addEventListener("scroll", () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = total > 0
+    ? window.scrollY / total * 100
+    : 0;
+
+  document.getElementById("progress").style.width =
+    progress + "%";
+});
+
+// K-Means K explorer
+const clusterK = document.getElementById("clusterK");
+
+clusterK.addEventListener("input", updateClusters);
+
+function updateClusters() {
+  const k = Number(clusterK.value);
+
+  document.getElementById("clusterResult").innerHTML = `
+    <strong>Selected K: ${k}</strong><br>
+    ${k} cluster${k > 1 ? "s" : ""} will be created.<br>
+    ${
+      k <= 2
+        ? "A relatively simple partition."
+        : k <= 5
+        ? "A moderate number of clusters."
+        : "A more complex partition. Check for over-segmentation."
+    }
+  `;
+}
+
+updateClusters();
+
+// Silhouette explorer
+const silhouette = document.getElementById("silhouette");
+
+silhouette.addEventListener("input", updateSilhouette);
+
+function updateSilhouette() {
+  const score = Number(silhouette.value) / 100;
+
+  let description = "";
+  let status = "";
+
+  if (score >= 0.5) {
+    description = "Well-separated and compact clusters.";
+    status = "good";
+  } else if (score >= 0.25) {
+    description = "Moderate clustering structure.";
+    status = "warning";
+  } else if (score >= 0) {
+    description = "Weak separation between clusters.";
+    status = "warning";
+  } else {
+    description = "Possible incorrect cluster assignments.";
+    status = "warning";
+  }
+
+  document.getElementById("silhouetteResult").innerHTML = `
+    <strong>Silhouette Score: ${score.toFixed(2)}</strong>
+    <div class="status ${status}">${description}</div>
+    Valid score range: -1 to +1.
+  `;
+}
+
+updateSilhouette();
+
+// Isolation Forest explorer
+function calculateIsolation() {
+  const path = Number(
+    document.getElementById("pathLength").value
+  );
+
+  const n = Number(
+    document.getElementById("sampleSize").value
+  );
+
+  const harmonic = value => {
+    if (value <= 1) return 0;
+
+    let sum = 0;
+
+    for (let i = 1; i < value; i++) {
+      sum += 1 / i;
+    }
+
+    return sum;
+  };
+
+  const c = 2 * harmonic(n - 1) -
+    (2 * (n - 1) / n);
+
+  const score = Math.pow(2, -path / c);
+
+  let interpretation = "";
+  let status = "";
+
+  if (score >= 0.65) {
+    interpretation = "Strong anomaly indication.";
+    status = "warning";
+  } else if (score >= 0.5) {
+    interpretation = "Potentially unusual observation.";
+    status = "warning";
+  } else {
+    interpretation = "More consistent with normal observations.";
+    status = "good";
+  }
+
+  document.getElementById("isolationResult").innerHTML = `
+    <strong>Estimated Isolation Score: ${score.toFixed(3)}</strong>
+    <div class="status ${status}">${interpretation}</div>
+    Average path length: ${path}<br>
+    Sample size: ${n}<br>
+    Shorter paths produce higher anomaly scores.
+  `;
+}
+
+// Knowledge Check
+const questions = [
+  {
+    question: "1. What is the main characteristic of Unsupervised Learning?",
+    options: [
+      "It requires labeled target values.",
+      "It discovers patterns in unlabeled data.",
+      "It only predicts numerical values."
+    ],
+    answer: 1
+  },
+  {
+    question: "2. Which are the three main task families discussed in this chapter?",
+    options: [
+      "Regression, classification, and reinforcement.",
+      "Prediction, optimization, and control.",
+      "Clustering, dimensionality reduction, and anomaly detection."
+    ],
+    answer: 2
+  },
+  {
+    question: "3. What does K represent in K-Means?",
+    options: [
+      "The number of clusters.",
+      "The number of features.",
+      "The number of training epochs."
+    ],
+    answer: 0
+  },
+  {
+    question: "4. What does K-Means attempt to minimize?",
+    options: [
+      "Classification error.",
+      "Within-cluster sum of squares.",
+      "The number of observations."
+    ],
+    answer: 1
+  },
+  {
+    question: "5. Which algorithm can identify arbitrarily shaped clusters and noise?",
+    options: [
+      "Linear Regression.",
+      "PCA.",
+      "DBSCAN."
+    ],
+    answer: 2
+  },
+  {
+    question: "6. What does the DBSCAN label -1 represent?",
+    options: [
+      "A core point.",
+      "Noise.",
+      "The first cluster."
+    ],
+    answer: 1
+  },
+  {
+    question: "7. What is the purpose of the Elbow Method?",
+    options: [
+      "To help select the number of clusters.",
+      "To detect missing values.",
+      "To calculate classification accuracy."
+    ],
+    answer: 0
+  },
+  {
+    question: "8. What does a Silhouette Score close to +1 indicate?",
+    options: [
+      "Poor cluster separation.",
+      "Random cluster assignment.",
+      "Well-separated and compact clusters."
+    ],
+    answer: 2
+  },
+  {
+    question: "9. What is the main goal of PCA?",
+    options: [
+      "Predict class labels.",
+      "Find directions of maximum variance.",
+      "Detect only point anomalies."
+    ],
+    answer: 1
+  },
+  {
+    question: "10. What does an eigenvalue represent in PCA?",
+    options: [
+      "Variance along a principal component.",
+      "The number of clusters.",
+      "The number of training labels."
+    ],
+    answer: 0
+  },
+  {
+    question: "11. What is an important limitation of t-SNE?",
+    options: [
+      "It cannot visualize high-dimensional data.",
+      "It requires class labels.",
+      "Distances between separate clusters may be misleading."
+    ],
+    answer: 2
+  },
+  {
+    question: "12. Which technique uses manifold learning and graph theory?",
+    options: [
+      "K-Means.",
+      "UMAP.",
+      "Linear Regression."
+    ],
+    answer: 1
+  },
+  {
+    question: "13. How does Isolation Forest identify anomalies?",
+    options: [
+      "By randomly partitioning observations.",
+      "By calculating classification accuracy.",
+      "By requiring predefined class labels."
+    ],
+    answer: 0
+  },
+  {
+    question: "14. What is generally true about an anomalous observation in Isolation Forest?",
+    options: [
+      "It always belongs to the largest cluster.",
+      "It requires more splits to isolate.",
+      "It often requires fewer splits to isolate."
+    ],
+    answer: 2
+  },
+  {
+    question: "15. Why is feature scaling important for K-Means?",
+    options: [
+      "It creates additional target labels.",
+      "Features with larger scales can dominate distance calculations.",
+      "It automatically chooses the best K."
+    ],
+    answer: 1
+  }
+];
+
+const quizContainer =
+  document.getElementById("quizContainer");
+
+function renderQuiz() {
+  quizContainer.innerHTML = "";
+
+  questions.forEach((q, i) => {
+    const div = document.createElement("div");
+    div.className = "quiz-question";
+
+    let html = `<p>${q.question}</p>`;
+
+    q.options.forEach((option, j) => {
+      html += `
+        <label>
+          <input type="radio" name="q${i}" value="${j}">
+          ${option}
+        </label>
+      `;
+    });
+
+    div.innerHTML = html;
+    quizContainer.appendChild(div);
+  });
+}
+
+function checkQuiz() {
+  let score = 0;
+  let answered = 0;
+
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(
+      `input[name="q${i}"]:checked`
+    );
+
+    if (selected) {
+      answered++;
+
+      if (Number(selected.value) === q.answer) {
+        score++;
+      }
+    }
+  });
+
+  const result =
+    document.getElementById("quizResult");
+
+  if (answered < questions.length) {
+    result.textContent =
+      `You answered ${answered} of ${questions.length} questions. Please complete the quiz first.`;
+    return;
+  }
+
+  const percentage =
+    (score / questions.length) * 100;
+
+  let message = "";
+
+  if (percentage >= 90) {
+    message = "Excellent understanding!";
+  } else if (percentage >= 70) {
+    message = "Good work! Keep learning.";
+  } else if (percentage >= 50) {
+    message = "You're making progress. Review the key concepts.";
+  } else {
+    message = "Review the chapter and try again.";
+  }
+
+  result.innerHTML = `
+    Your score: ${score} / ${questions.length}
+    (${percentage.toFixed(0)}%)<br>
+    ${message}
+  `;
+}
+
+function resetQuiz() {
+  document.querySelectorAll(
+    '#quizContainer input[type="radio"]'
+  ).forEach(input => {
+    input.checked = false;
+  });
+
+  document.getElementById("quizResult").textContent = "";
+}
+
+renderQuiz();
+</script>
+
+</body>
+</html>

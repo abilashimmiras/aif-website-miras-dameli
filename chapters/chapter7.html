@@ -1,0 +1,1076 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 — Rational Decisions & Classical ML</title>
+
+<style>
+:root {
+  --blue:#2457d6;
+  --blue-dark:#173b9b;
+  --light:#edf3ff;
+  --text:#202b3c;
+  --muted:#68758a;
+  --border:#e3e9f3;
+  --bg:#f7f9fd;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7
+}
+.progress{
+  position:fixed;top:0;left:0;height:4px;width:0;
+  background:var(--blue);z-index:100
+}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:255px;background:white;border-right:1px solid var(--border);
+  padding:28px 18px;position:fixed;height:100vh;overflow-y:auto
+}
+.brand{font-size:17px;font-weight:750;color:var(--blue)}
+.course-label{font-size:12px;color:var(--muted);margin:8px 0 30px}
+.sidebar h4{
+  font-size:11px;text-transform:uppercase;color:#98a3b5;
+  letter-spacing:1.2px;margin:20px 10px 10px
+}
+.sidebar a{
+  display:block;text-decoration:none;color:#59667b;font-size:13px;
+  padding:9px 11px;border-radius:8px;margin:3px 0
+}
+.sidebar a:hover,.sidebar a.active{background:var(--light);color:var(--blue)}
+.main{
+  margin-left:255px;width:calc(100% - 255px);
+  padding:35px 6%;max-width:1500px
+}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin-bottom:35px;flex-wrap:wrap
+}
+.topbar span{font-size:13px;color:var(--muted)}
+.hero{
+  background:linear-gradient(120deg,#eaf1ff,#f7f9ff);
+  border:1px solid #dce7ff;border-radius:20px;
+  padding:42px;margin-bottom:30px
+}
+.chapter-label{
+  color:var(--blue);font-weight:700;font-size:13px;
+  letter-spacing:1px;text-transform:uppercase
+}
+.hero h1{
+  font-size:clamp(28px,4vw,43px);line-height:1.2;
+  margin:12px 0;color:#182b54
+}
+.hero p{color:#65738b;max-width:720px}
+.hero-meta{margin-top:25px;font-size:12px;color:#62718b}
+.section{
+  background:white;border:1px solid var(--border);
+  border-radius:16px;padding:28px;margin-bottom:22px;
+  scroll-margin-top:25px
+}
+.section h2{font-size:22px;margin-bottom:15px}
+.section h3{font-size:16px;margin:20px 0 8px}
+.section p{color:#59667b;margin-bottom:12px}
+.section ul{padding-left:22px;color:#59667b;margin:12px 0}
+.section li{margin-bottom:7px}
+.grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:14px;margin:18px 0
+}
+.info-card{
+  background:#f8faff;border:1px solid var(--border);
+  border-radius:12px;padding:17px
+}
+.info-card h3{color:var(--blue);margin:0 0 8px}
+.info-card p{font-size:13px;margin:0}
+.formula{
+  background:#f0f5ff;border-left:4px solid var(--blue);
+  border-radius:8px;padding:18px;margin:16px 0;
+  color:#1b3d91;font-family:Georgia,serif;
+  font-size:18px;text-align:center;overflow-x:auto
+}
+.note{
+  background:#f5f8fc;border:1px solid var(--border);
+  border-radius:10px;padding:15px;color:#59667b;
+  font-size:13px;margin:15px 0
+}
+.diagram{
+  display:flex;justify-content:center;align-items:center;
+  flex-wrap:wrap;gap:12px;padding:25px 5px
+}
+.node{
+  background:var(--light);border:1px solid #cbdcff;
+  border-radius:12px;padding:15px 20px;text-align:center;
+  color:var(--blue-dark);font-weight:700
+}
+.arrow{color:var(--blue);font-size:23px}
+table{border-collapse:collapse;width:100%;margin:18px 0;font-size:13px}
+th,td{border:1px solid var(--border);padding:12px;text-align:left}
+th{background:#f0f5ff;color:#24458d}
+tr:nth-child(even){background:#fafbfe}
+.code{
+  background:#172238;color:#dce8ff;border-radius:12px;
+  padding:20px;overflow-x:auto;font-family:monospace;
+  font-size:12px;line-height:1.8;margin:15px 0;white-space:pre
+}
+.interactive{
+  background:#f8faff;border:1px solid #dce7ff;
+  border-radius:14px;padding:22px;margin-top:18px
+}
+.interactive label{display:block;font-size:13px;font-weight:650;margin:12px 0 5px}
+.interactive input,.interactive select{
+  width:100%;padding:11px;border:1px solid #d7dfed;
+  border-radius:8px;background:white;color:var(--text);font-size:14px
+}
+button{
+  border:none;background:var(--blue);color:white;
+  padding:11px 18px;border-radius:8px;cursor:pointer;
+  font-weight:650;margin-top:15px
+}
+button:hover{background:var(--blue-dark)}
+.result{
+  background:white;border:1px solid var(--border);
+  border-radius:10px;padding:16px;margin-top:15px;font-size:14px
+}
+.status{font-weight:750;font-size:19px;margin:8px 0}
+.good{color:#16804a}
+.warning{color:#b56a14}
+.bar-bg{height:13px;background:#e8edf5;border-radius:20px;overflow:hidden}
+.bar-fill{height:100%;background:var(--blue);border-radius:20px}
+.bar-row{margin:12px 0}
+.bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.quiz-question{
+  border:1px solid var(--border);padding:17px;
+  border-radius:12px;margin:14px 0
+}
+.quiz-question p{font-weight:650;color:var(--text)}
+.quiz-question label{
+  display:block;font-size:13px;color:#59667b;margin:9px 0;cursor:pointer
+}
+.quiz-result{font-weight:700;color:var(--blue);margin-top:15px}
+.footer{text-align:center;padding:30px;color:var(--muted);font-size:12px}
+.footer a{color:var(--blue);text-decoration:none}
+@media(max-width:850px){
+  .sidebar{display:none}
+  .main{margin-left:0;width:100%;padding:20px}
+  .grid{grid-template-columns:1fr}
+  .hero{padding:27px}
+}
+</style>
+</head>
+
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">QAIRU · AIF</div>
+  <div class="course-label">AI Fundamentals · 2026</div>
+
+  <h4>Chapter navigation</h4>
+  <a href="#overview">01 · Overview</a>
+  <a href="#rationality">02 · Rationality</a>
+  <a href="#utility">03 · Expected Utility</a>
+  <a href="#uncertainty">04 · Decisions Under Uncertainty</a>
+  <a href="#paradigms">05 · ML Paradigms</a>
+  <a href="#algorithms">06 · Classical Algorithms</a>
+  <a href="#evaluation">07 · Model Evaluation</a>
+  <a href="#pipeline">08 · Rational ML Pipeline</a>
+  <a href="#python">09 · Python Implementation</a>
+  <a href="#quiz">10 · Knowledge Check</a>
+
+  <h4>Course</h4>
+  <a href="../index.html">← Back to Dashboard</a>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+  <span>QAIRU — Qazaq AI Research University</span>
+  <span>AIF · Academic Year 2026</span>
+</div>
+
+<div class="hero" id="overview">
+  <div class="chapter-label">Chapter 07 · Decision Theory & Machine Learning</div>
+  <h1>Rational Decisions & Classical Machine Learning</h1>
+  <p>
+    Explore how intelligent agents make decisions under uncertainty,
+    evaluate possible outcomes, learn patterns from data, and connect
+    machine-learning predictions to rational real-world actions.
+  </p>
+  <div class="hero-meta">
+    AI FUNDAMENTALS · PREPARED BY ABILASHIM MIRAS ·
+    PROFESSOR GULZHAN USKENBAYEVA
+  </div>
+</div>
+
+<section class="section" id="rationality">
+  <h2>01. Foundations of Rationality</h2>
+
+  <p>
+    A rational agent chooses an action that maximizes expected
+    performance based on the evidence and information available
+    before making the decision.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Rationality</h3>
+      <p>Choosing the best action based on available evidence and expected outcomes.</p>
+    </div>
+    <div class="info-card">
+      <h3>Omniscience</h3>
+      <p>Knowing the actual outcome of every possible decision in advance.</p>
+    </div>
+    <div class="info-card">
+      <h3>Evidence</h3>
+      <p>Information available to an agent when it makes a decision.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Important:</strong> Rationality does not guarantee success.
+    A decision can be rational even when the eventual outcome is unfavorable.
+    Decisions should be judged using the information available at the time,
+    not only by hindsight.
+  </div>
+
+  <h3>The Rational Action Rule</h3>
+  <p>
+    An agent compares possible actions and selects the one with
+    the highest expected utility.
+  </p>
+
+  <div class="formula">
+    a* = argmaxₐ E[U | a, e]
+  </div>
+
+  <p>
+    Here, a is a candidate action, e is the available evidence,
+    and U represents the utility of an outcome.
+  </p>
+</section>
+
+<section class="section" id="utility">
+  <h2>02. Expected Utility & Maximum Expected Utility</h2>
+
+  <p>
+    Expected Utility (EU) combines the probability of each possible
+    outcome with the utility associated with that outcome.
+  </p>
+
+  <div class="formula">
+    EU(a) = Σᵢ P(oᵢ | a) × U(oᵢ)
+  </div>
+
+  <p>
+    The Maximum Expected Utility (MEU) rule selects the action
+    with the highest expected utility.
+  </p>
+
+  <div class="formula">
+    a* = argmaxₐ EU(a)
+  </div>
+
+  <h3>Worked Example: Project Selection</h3>
+
+  <table>
+    <tr><th>Outcome</th><th>Project A</th><th>Project B</th></tr>
+    <tr><td>Success probability</td><td>0.90</td><td>0.60</td></tr>
+    <tr><td>Success utility</td><td>+100</td><td>+200</td></tr>
+    <tr><td>Failure probability</td><td>0.10</td><td>0.40</td></tr>
+    <tr><td>Failure utility</td><td>-20</td><td>-50</td></tr>
+    <tr><td>Expected utility</td><td>88</td><td>100</td></tr>
+  </table>
+
+  <div class="formula">
+    EU(A) = (0.90 × 100) + (0.10 × -20) = 88
+  </div>
+  <div class="formula">
+    EU(B) = (0.60 × 200) + (0.40 × -50) = 100
+  </div>
+
+  <div class="note">
+    Project B is preferred under MEU, even though its probability of
+    success is lower. Its expected utility is higher.
+  </div>
+
+  <h3>Interactive Expected Utility Calculator</h3>
+  <p>Change the probabilities and utilities to compare two decisions.</p>
+
+  <div class="interactive">
+    <label for="aSuccess">Project A — success probability (%)</label>
+    <input id="aSuccess" type="number" min="0" max="100" value="90">
+
+    <label for="aWin">Project A — success utility</label>
+    <input id="aWin" type="number" value="100">
+
+    <label for="aLoss">Project A — failure utility</label>
+    <input id="aLoss" type="number" value="-20">
+
+    <label for="bSuccess">Project B — success probability (%)</label>
+    <input id="bSuccess" type="number" min="0" max="100" value="60">
+
+    <label for="bWin">Project B — success utility</label>
+    <input id="bWin" type="number" value="200">
+
+    <label for="bLoss">Project B — failure utility</label>
+    <input id="bLoss" type="number" value="-50">
+
+    <button onclick="calculateEU()">Calculate Expected Utility</button>
+    <div class="result" id="euResult">
+      Project A: 88<br>Project B: 100<br>
+      Preferred decision: Project B
+    </div>
+  </div>
+
+  <h3>Risk Preferences</h3>
+  <table>
+    <tr><th>Risk-neutral</th><th>Risk-averse</th></tr>
+    <tr>
+      <td>Focuses on maximizing expected monetary value.</td>
+      <td>Prefers avoiding uncertainty and large losses.</td>
+    </tr>
+    <tr>
+      <td>Typically represented by linear utility.</td>
+      <td>Typically represented by concave utility.</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="uncertainty">
+  <h2>03. Decisions Under Uncertainty</h2>
+
+  <h3>Bayesian Belief Updating</h3>
+  <p>
+    Bayesian reasoning updates the probability of a hypothesis
+    after new evidence becomes available.
+  </p>
+
+  <div class="formula">
+    P(H | D) = P(D | H)P(H) / P(D)
+  </div>
+
+  <p>
+    A prior probability represents the initial belief.
+    The posterior probability represents the updated belief
+    after observing evidence.
+  </p>
+
+  <h3>Cost-Optimal Decision Threshold</h3>
+  <p>
+    In practical decision problems, the best action depends not only
+    on probability but also on the economic costs of each outcome.
+  </p>
+
+  <div class="formula">
+    p* = Cmaint / Cfailure
+  </div>
+
+  <p>
+    In this simplified maintenance model, preventive maintenance
+    is selected when the predicted failure probability exceeds
+    the cost-optimal threshold.
+  </p>
+
+  <h3>Worked Example: Machine Maintenance</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>$2,000</h3>
+      <p>Preventive maintenance cost</p>
+    </div>
+    <div class="info-card">
+      <h3>$10,000</h3>
+      <p>Loss if an unprevented failure occurs</p>
+    </div>
+    <div class="info-card">
+      <h3>20%</h3>
+      <p>Optimal probability threshold</p>
+    </div>
+  </div>
+
+  <div class="formula">
+    p* = 2,000 / 10,000 = 0.20
+  </div>
+
+  <div class="note">
+    If the failure probability is 15%, the expected failure loss is
+    $1,500, which is lower than the $2,000 maintenance cost.
+    Continue operating under this simplified model.
+    <br><br>
+    If the failure probability is 30%, the expected failure loss is
+    $3,000, which exceeds the maintenance cost. Choose maintenance.
+  </div>
+
+  <h3>Interactive Maintenance Decision Calculator</h3>
+
+  <div class="interactive">
+    <label for="maintenanceCost">Preventive maintenance cost ($)</label>
+    <input id="maintenanceCost" type="number" min="0" value="2000">
+
+    <label for="failureCost">Failure loss ($)</label>
+    <input id="failureCost" type="number" min="1" value="10000">
+
+    <label for="failureProbability">Predicted failure probability (%)</label>
+    <input id="failureProbability" type="number" min="0" max="100" value="15">
+
+    <button onclick="calculateMaintenance()">Evaluate Decision</button>
+
+    <div class="result" id="maintenanceResult">
+      <strong>Optimal threshold: 20%</strong>
+      <div class="status good">CONTINUE</div>
+      Expected failure loss: $1,500<br>
+      Maintenance cost: $2,000
+    </div>
+  </div>
+
+  <div class="note">
+    This calculator assumes a simplified binary model: maintenance
+    prevents the modeled failure loss, and the two costs are comparable.
+    Real maintenance decisions may also include downtime, imperfect
+    repairs, and additional operating costs.
+  </div>
+</section>
+
+<section class="section" id="paradigms">
+  <h2>04. Machine Learning Paradigms</h2>
+
+  <p>
+    Machine Learning (ML) allows systems to learn patterns from data
+    and improve their predictions or decisions without being explicitly
+    programmed for every situation.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Supervised Learning</h3>
+      <p>
+        Learns from labeled examples containing inputs and correct targets.
+        Examples: regression and classification.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Unsupervised Learning</h3>
+      <p>
+        Finds hidden structures and patterns in data without labeled targets.
+        Example: clustering.
+      </p>
+    </div>
+    <div class="info-card">
+      <h3>Reinforcement Learning</h3>
+      <p>
+        Learns actions through interaction with an environment
+        and feedback in the form of rewards.
+      </p>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="node">Data</div>
+    <div class="arrow">→</div>
+    <div class="node">Learning Algorithm</div>
+    <div class="arrow">→</div>
+    <div class="node">Model</div>
+  </div>
+
+  <h3>Comparison of Learning Paradigms</h3>
+
+  <table>
+    <tr>
+      <th>Paradigm</th>
+      <th>Training feedback</th>
+      <th>Objective</th>
+      <th>Examples</th>
+    </tr>
+    <tr>
+      <td>Supervised Regression</td>
+      <td>Numerical labels</td>
+      <td>Minimize prediction error</td>
+      <td>Linear Regression</td>
+    </tr>
+    <tr>
+      <td>Supervised Classification</td>
+      <td>Class labels</td>
+      <td>Predict categories</td>
+      <td>Logistic Regression, Random Forest</td>
+    </tr>
+    <tr>
+      <td>Unsupervised</td>
+      <td>Unlabeled data</td>
+      <td>Discover structure</td>
+      <td>K-Means, PCA</td>
+    </tr>
+    <tr>
+      <td>Reinforcement</td>
+      <td>Rewards</td>
+      <td>Maximize cumulative return</td>
+      <td>Q-Learning, DQN</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="algorithms">
+  <h2>05. Classical Machine Learning Algorithms</h2>
+
+  <h3>Linear Regression</h3>
+  <p>
+    Linear Regression predicts a continuous numerical value
+    using a linear relationship between input features and a target.
+  </p>
+
+  <div class="formula">ŷ = wx + b</div>
+  <div class="formula">MSE = (1/n) Σᵢ (yᵢ - ŷᵢ)²</div>
+
+  <p>
+    The model learns parameters w and b by minimizing
+    Mean Squared Error (MSE).
+  </p>
+
+  <h3>Logistic Regression</h3>
+  <p>
+    Logistic Regression is commonly used for binary classification.
+    It transforms a linear score into a probability.
+  </p>
+
+  <div class="formula">z = wᵀx + b</div>
+  <div class="formula">σ(z) = 1 / (1 + e⁻ᶻ)</div>
+
+  <p>
+    The sigmoid function produces an output between 0 and 1,
+    which can be interpreted as a predicted class probability.
+  </p>
+
+  <h3>Decision Trees</h3>
+  <p>
+    A Decision Tree makes predictions using a sequence of
+    feature-based questions and branches.
+  </p>
+
+  <div class="diagram">
+    <div class="node">Temperature high?</div>
+  </div>
+  <div class="diagram">
+    <div class="node">No → Continue</div>
+    <div class="node">Yes → Check vibration</div>
+  </div>
+  <div class="diagram">
+    <div class="node">Normal → Monitor</div>
+    <div class="node">High → Inspect machine</div>
+  </div>
+
+  <h3>Random Forests</h3>
+  <p>
+    A Random Forest combines predictions from multiple decision trees.
+    It uses bootstrap samples and feature subsetting to create diversity
+    among trees and reduce variance.
+  </p>
+
+  <div class="formula">
+    Random Forest = Combined predictions of multiple trees
+  </div>
+
+  <h3>K-Means Clustering</h3>
+  <p>
+    K-Means is an unsupervised algorithm that groups similar data points
+    into K clusters.
+  </p>
+
+  <ol>
+    <li>Choose the number of clusters K.</li>
+    <li>Initialize K centroids.</li>
+    <li>Assign each point to its nearest centroid.</li>
+    <li>Recalculate the centroid of each cluster.</li>
+    <li>Repeat until assignments or centroids stabilize.</li>
+  </ol>
+
+  <div class="formula">
+    J = Σₖ Σₓ∈Cₖ ||x - μₖ||²
+  </div>
+
+  <div class="note">
+    Feature scaling is important for distance-based algorithms such as
+    K-Means. Otherwise, features with larger numerical scales can dominate
+    the distance calculation.
+  </div>
+</section>
+
+<section class="section" id="evaluation">
+  <h2>06. Model Evaluation</h2>
+
+  <p>
+    Model evaluation measures how well a machine-learning model performs
+    on data that was not used to train it.
+  </p>
+
+  <h3>Confusion Matrix</h3>
+
+  <table>
+    <tr>
+      <th></th>
+      <th>Predicted Positive</th>
+      <th>Predicted Negative</th>
+    </tr>
+    <tr>
+      <th>Actually Positive</th>
+      <td>True Positive (TP)</td>
+      <td>False Negative (FN)</td>
+    </tr>
+    <tr>
+      <th>Actually Negative</th>
+      <td>False Positive (FP)</td>
+      <td>True Negative (TN)</td>
+    </tr>
+  </table>
+
+  <h3>Important Evaluation Metrics</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Accuracy</h3>
+      <div class="formula">(TP + TN) / N</div>
+      <p>Fraction of all predictions that are correct.</p>
+    </div>
+    <div class="info-card">
+      <h3>Precision</h3>
+      <div class="formula">TP / (TP + FP)</div>
+      <p>How many predicted positives are actually positive.</p>
+    </div>
+    <div class="info-card">
+      <h3>Recall</h3>
+      <div class="formula">TP / (TP + FN)</div>
+      <p>How many actual positives the model identifies.</p>
+    </div>
+  </div>
+
+  <div class="formula">
+    F1 = 2 × (Precision × Recall) / (Precision + Recall)
+  </div>
+
+  <h3>Why High Accuracy Is Not Always Enough</h3>
+
+  <p>
+    Imagine a dataset where only 2% of machines experience failure.
+    A model that always predicts "No Failure" can achieve 98% accuracy,
+    while identifying none of the actual failures.
+  </p>
+
+  <div class="note">
+    In imbalanced classification problems, precision, recall, F1-score,
+    and probability calibration can provide more useful information
+    than accuracy alone.
+  </div>
+
+  <h3>Interactive Evaluation Calculator</h3>
+
+  <div class="interactive">
+    <label for="tp">True Positives (TP)</label>
+    <input id="tp" type="number" min="0" value="80">
+
+    <label for="tn">True Negatives (TN)</label>
+    <input id="tn" type="number" min="0" value="900">
+
+    <label for="fp">False Positives (FP)</label>
+    <input id="fp" type="number" min="0" value="20">
+
+    <label for="fn">False Negatives (FN)</label>
+    <input id="fn" type="number" min="0" value="10">
+
+    <button onclick="calculateMetrics()">Calculate Metrics</button>
+    <div class="result" id="metricsResult">
+      Accuracy: 97.03%<br>
+      Precision: 80.00%<br>
+      Recall: 88.89%<br>
+      F1-score: 84.21%
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pipeline">
+  <h2>07. Rational Machine Learning Integration</h2>
+
+  <p>
+    A machine-learning model estimates probabilities or predicts outcomes.
+    A rational decision system uses those predictions together with
+    utility and cost information to choose an action.
+  </p>
+
+  <div class="diagram">
+    <div class="node">Sensor Data</div>
+    <div class="arrow">→</div>
+    <div class="node">ML Model</div>
+    <div class="arrow">→</div>
+    <div class="node">Failure Probability</div>
+    <div class="arrow">→</div>
+    <div class="node">Cost-Based Decision</div>
+  </div>
+
+  <h3>Prediction vs. Decision</h3>
+
+  <table>
+    <tr><th>Prediction</th><th>Decision</th></tr>
+    <tr>
+      <td>Estimates how likely failure is.</td>
+      <td>Chooses whether to maintain or continue.</td>
+    </tr>
+    <tr>
+      <td>Uses evidence and learned patterns.</td>
+      <td>Uses probabilities and economic costs.</td>
+    </tr>
+    <tr>
+      <td>Example: 30% failure probability.</td>
+      <td>Example: Preventive maintenance.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    A probability is not an action policy. A model can estimate risk,
+    but the decision rule determines what to do with that estimate.
+  </div>
+</section>
+
+<section class="section" id="python">
+  <h2>08. Python Implementation</h2>
+
+  <h3>Cost-Optimal Maintenance Pipeline</h3>
+
+  <p>
+    This example trains a Logistic Regression classifier,
+    estimates failure probabilities, and applies a cost-based threshold.
+  </p>
+
+  <div class="code">import numpy as np
+
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+
+# 1. Create and train the model
+model = make_pipeline(
+    StandardScaler(),
+    LogisticRegression()
+)
+
+model.fit(X_train, y_train)
+
+# 2. Estimate failure probabilities
+p_failure = model.predict_proba(X_test)[:, 1]
+
+# 3. Define economic costs
+c_maint = 2000
+c_failure = 10000
+
+# 4. Calculate the optimal threshold
+optimal_threshold = c_maint / c_failure
+
+# 5. Select rational actions
+actions = np.where(
+    p_failure >= optimal_threshold,
+    "Maintain",
+    "Continue"
+)
+
+print("Threshold:", optimal_threshold)
+print(actions)</div>
+
+  <h3>K-Means Clustering with Feature Scaling</h3>
+
+  <div class="code">from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Scale the input features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_raw)
+
+# Create the K-Means model
+km = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
+
+# Assign cluster labels
+cluster_labels = km.fit_predict(X_scaled)
+
+print(cluster_labels)</div>
+
+  <div class="note">
+    Before running these examples, install the required libraries:
+    <br><br>
+    <code>pip install numpy scikit-learn</code>
+    <br><br>
+    You also need to prepare X_train, y_train, X_test, and X_raw
+    from your dataset.
+  </div>
+</section>
+
+<section class="section" id="quiz">
+  <h2>09. Knowledge Check</h2>
+  <p>Test your understanding of Rational Decisions and Classical ML.</p>
+  <div id="quizContainer"></div>
+  <button onclick="checkQuiz()">Check Answers</button>
+  <div class="quiz-result" id="quizResult"></div>
+</section>
+
+<div class="footer">
+  <p>QAIRU — Qazaq AI Research University</p>
+  <p>AI Fundamentals · Prepared by Abilashim Miras</p>
+  <p style="margin-top:15px">
+    <a href="../index.html">← Return to Dashboard</a>
+  </p>
+</div>
+
+</main>
+</div>
+
+<script>
+// Reading progress
+window.addEventListener("scroll", () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = total > 0 ? window.scrollY / total * 100 : 0;
+  document.getElementById("progress").style.width = progress + "%";
+});
+
+// Expected Utility Calculator
+function calculateEU() {
+  const get = id => Number(document.getElementById(id).value);
+
+  const aP = get("aSuccess") / 100;
+  const aWin = get("aWin");
+  const aLoss = get("aLoss");
+
+  const bP = get("bSuccess") / 100;
+  const bWin = get("bWin");
+  const bLoss = get("bLoss");
+
+  if (aP < 0 || aP > 1 || bP < 0 || bP > 1) {
+    document.getElementById("euResult").textContent =
+      "Probabilities must be between 0 and 100%.";
+    return;
+  }
+
+  const aEU = aP * aWin + (1 - aP) * aLoss;
+  const bEU = bP * bWin + (1 - bP) * bLoss;
+
+  let decision = "Both projects have equal expected utility.";
+  if (aEU > bEU) decision = "Preferred decision: Project A";
+  if (bEU > aEU) decision = "Preferred decision: Project B";
+
+  document.getElementById("euResult").innerHTML = `
+    <strong>Results</strong><br>
+    Project A: ${aEU.toFixed(2)}<br>
+    Project B: ${bEU.toFixed(2)}<br>
+    <strong>${decision}</strong>
+  `;
+}
+
+// Maintenance Calculator
+function calculateMaintenance() {
+  const maint = Number(document.getElementById("maintenanceCost").value);
+  const failure = Number(document.getElementById("failureCost").value);
+  const probability =
+    Number(document.getElementById("failureProbability").value) / 100;
+
+  const result = document.getElementById("maintenanceResult");
+
+  if (
+    !Number.isFinite(maint) ||
+    !Number.isFinite(failure) ||
+    !Number.isFinite(probability) ||
+    maint < 0 ||
+    failure <= 0 ||
+    probability < 0 ||
+    probability > 1
+  ) {
+    result.textContent = "Please enter valid costs and a probability from 0 to 100%.";
+    return;
+  }
+
+  const threshold = maint / failure;
+  const expectedLoss = probability * failure;
+  const maintain = probability > threshold;
+
+  result.innerHTML = `
+    <strong>Optimal threshold: ${(threshold * 100).toFixed(1)}%</strong>
+    <div class="status ${maintain ? "warning" : "good"}">
+      ${maintain ? "MAINTAIN" : "CONTINUE"}
+    </div>
+    Predicted failure probability: ${(probability * 100).toFixed(1)}%<br>
+    Expected failure loss: $${expectedLoss.toLocaleString("en-US", {maximumFractionDigits:2})}<br>
+    Maintenance cost: $${maint.toLocaleString("en-US")}<br>
+    ${maintain
+      ? "Expected failure loss exceeds maintenance cost."
+      : "Expected failure loss does not exceed maintenance cost."}
+  `;
+}
+
+// Evaluation Metrics Calculator
+function calculateMetrics() {
+  const get = id => Number(document.getElementById(id).value);
+
+  const tp = get("tp");
+  const tn = get("tn");
+  const fp = get("fp");
+  const fn = get("fn");
+
+  const values = [tp, tn, fp, fn];
+
+  if (values.some(v => !Number.isFinite(v) || v < 0)) {
+    document.getElementById("metricsResult").textContent =
+      "Enter valid non-negative numbers.";
+    return;
+  }
+
+  const total = tp + tn + fp + fn;
+  if (total === 0) {
+    document.getElementById("metricsResult").textContent =
+      "The total number of predictions must be greater than zero.";
+    return;
+  }
+
+  const accuracy = (tp + tn) / total;
+  const precision = tp + fp === 0 ? 0 : tp / (tp + fp);
+  const recall = tp + fn === 0 ? 0 : tp / (tp + fn);
+  const f1 = precision + recall === 0
+    ? 0
+    : 2 * precision * recall / (precision + recall);
+
+  document.getElementById("metricsResult").innerHTML = `
+    <strong>Evaluation Results</strong><br>
+    Accuracy: ${(accuracy * 100).toFixed(2)}%<br>
+    Precision: ${(precision * 100).toFixed(2)}%<br>
+    Recall: ${(recall * 100).toFixed(2)}%<br>
+    F1-score: ${(f1 * 100).toFixed(2)}%
+  `;
+}
+
+// Knowledge Check
+const questions = [
+  {
+    question: "1. What does a rational agent maximize?",
+    options: [
+      "The number of possible actions",
+      "Expected utility",
+      "The number of observations"
+    ],
+    answer: 1
+  },
+  {
+    question: "2. What is the MEU rule?",
+    options: [
+      "Choose the action with the highest expected utility",
+      "Always choose the safest-looking action",
+      "Choose the action with the highest success probability"
+    ],
+    answer: 0
+  },
+  {
+    question: "3. Which learning paradigm uses labeled data?",
+    options: [
+      "Unsupervised Learning",
+      "Reinforcement Learning",
+      "Supervised Learning"
+    ],
+    answer: 2
+  },
+  {
+    question: "4. Which algorithm is commonly used for clustering?",
+    options: [
+      "K-Means",
+      "Logistic Regression",
+      "Linear Regression"
+    ],
+    answer: 0
+  },
+  {
+    question: "5. What does Logistic Regression commonly predict?",
+    options: [
+      "A cluster centroid",
+      "A class probability",
+      "A sequence of actions"
+    ],
+    answer: 1
+  },
+  {
+    question: "6. Which metric measures the fraction of actual positives identified?",
+    options: [
+      "Accuracy",
+      "Recall",
+      "Precision"
+    ],
+    answer: 1
+  },
+  {
+    question: "7. Why can high accuracy be misleading?",
+    options: [
+      "It always ignores true negatives",
+      "It cannot be calculated for classification",
+      "An imbalanced dataset can hide missed positive cases"
+    ],
+    answer: 2
+  },
+  {
+    question: "8. What determines a cost-optimal decision threshold?",
+    options: [
+      "The economic costs of possible outcomes",
+      "A default probability of 0.5",
+      "The number of training examples only"
+    ],
+    answer: 0
+  }
+];
+
+const quizContainer = document.getElementById("quizContainer");
+
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.className = "quiz-question";
+
+  let html = `<p>${q.question}</p>`;
+
+  q.options.forEach((option, j) => {
+    html += `
+      <label>
+        <input type="radio" name="q${i}" value="${j}">
+        ${option}
+      </label>
+    `;
+  });
+
+  div.innerHTML = html;
+  quizContainer.appendChild(div);
+});
+
+function checkQuiz() {
+  let score = 0;
+  let answered = 0;
+
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(
+      `input[name="q${i}"]:checked`
+    );
+
+    if (selected) {
+      answered++;
+      if (Number(selected.value) === q.answer) score++;
+    }
+  });
+
+  const result = document.getElementById("quizResult");
+
+  if (answered < questions.length) {
+    result.textContent =
+      `You answered ${answered} of ${questions.length} questions. Complete the quiz first.`;
+    return;
+  }
+
+  result.textContent = `Your score: ${score} / ${questions.length}`;
+}
+</script>
+
+</body>
+</html>

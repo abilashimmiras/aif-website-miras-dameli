@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1 | AI Fundamentals</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="lesson-page">
+
+<header class="lesson-topbar">
+    <a href="../index.html" class="back-link">← Back to Dashboard</a>
+    <div class="lesson-brand">QAIRU <span>· AIF</span></div>
+</header>
+
+<main class="lesson-container">
+
+    <div class="lesson-breadcrumb">
+        AI Fundamentals / Lecture Chapters / Chapter 01
+    </div>
+
+    <section class="lesson-hero">
+        <span class="lesson-tag">LECTURE 01 · SEARCH ALGORITHMS</span>
+        <h1>Uninformed Search,<br><span>A* Search & Heuristics</span></h1>
+        <p>
+            Understand how intelligent agents explore possible solutions,
+            find optimal paths, and use heuristics to make smarter decisions.
+        </p>
+        <div class="lesson-meta">
+            <span>📘 AI Fundamentals</span>
+            <span>🎓 QAIRU</span>
+            <span>📅 Academic Year 2026</span>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">01 · FUNDAMENTALS</span>
+            <h2>Search Problem Formulation</h2>
+            <p>Before an AI system can find a solution, it needs to understand the problem.</p>
+        </div>
+
+        <div class="concept-grid">
+            <article class="concept-card">
+                <span class="concept-icon">◈</span>
+                <h3>State Space</h3>
+                <p>An abstract representation of an environment containing the information necessary for planning.</p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">◎</span>
+                <h3>Start State</h3>
+                <p>The initial situation or position from which the search process begins.</p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">⇄</span>
+                <h3>Successor Function</h3>
+                <p>Defines available actions, their resulting states, and the associated step costs.</p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">✓</span>
+                <h3>Goal Test</h3>
+                <p>Checks whether the current state satisfies the desired goal conditions.</p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">Σ</span>
+                <h3>Path Cost</h3>
+                <p>The total cost accumulated while moving from the initial state to a particular state.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">02 · REPRESENTATION</span>
+            <h2>State Space Graph vs. Search Tree</h2>
+            <p>Two different ways of representing the exploration of possible solutions.</p>
+        </div>
+
+        <div class="comparison-grid">
+            <article class="comparison-card">
+                <h3>State Space Graph</h3>
+                <div class="diagram-box">
+                    <div class="diagram-node">A</div>
+                    <div class="diagram-branches">
+                        <span>B</span>
+                        <span>C</span>
+                    </div>
+                    <div class="diagram-branches">
+                        <span>D</span>
+                        <span>E</span>
+                    </div>
+                </div>
+                <ul>
+                    <li>Each state appears only once.</li>
+                    <li>Connections represent possible actions.</li>
+                    <li>Can contain cycles.</li>
+                </ul>
+            </article>
+
+            <article class="comparison-card">
+                <h3>Search Tree</h3>
+                <div class="diagram-box">
+                    <div class="diagram-node">A</div>
+                    <div class="diagram-branches">
+                        <span>B</span>
+                        <span>C</span>
+                    </div>
+                    <div class="diagram-branches">
+                        <span>A</span>
+                        <span>D</span>
+                    </div>
+                </div>
+                <ul>
+                    <li>Each node represents a complete path.</li>
+                    <li>The same state can appear multiple times.</li>
+                    <li>Cycles can create infinite search trees.</li>
+                </ul>
+            </article>
+        </div>
+
+        <div class="note-box">
+            <strong>Important concept</strong>
+            <p>
+                A visited set helps prevent repeated exploration of states
+                and avoids unnecessary processing in cyclic graphs.
+            </p>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">03 · UNINFORMED SEARCH</span>
+            <h2>Uninformed Search Algorithms</h2>
+            <p>These algorithms explore the search space without using estimates of how close a state is to the goal.</p>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-header">
+                <span class="algorithm-number">01</span>
+                <div>
+                    <h3>Breadth-First Search (BFS)</h3>
+                    <span class="algorithm-type">FIFO QUEUE</span>
+                </div>
+            </div>
+            <p>Explores the shallowest nodes first, level by level.</p>
+            <div class="algorithm-details">
+                <div><span>Data structure</span><strong>FIFO Queue</strong></div>
+                <div><span>Expansion</span><strong>Shallowest first</strong></div>
+                <div><span>Optimality</span><strong>Yes, equal step costs</strong></div>
+                <div><span>Memory</span><strong>High</strong></div>
+            </div>
+            <div class="note-box">
+                BFS finds the shortest path in terms of the number of edges when all step costs are equal.
+            </div>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-header">
+                <span class="algorithm-number">02</span>
+                <div>
+                    <h3>Depth-First Search (DFS)</h3>
+                    <span class="algorithm-type">LIFO STACK</span>
+                </div>
+            </div>
+            <p>Explores the deepest available node before backtracking.</p>
+            <div class="algorithm-details">
+                <div><span>Data structure</span><strong>LIFO Stack</strong></div>
+                <div><span>Expansion</span><strong>Deepest first</strong></div>
+                <div><span>Optimality</span><strong>Not guaranteed</strong></div>
+                <div><span>Memory</span><strong>Low</strong></div>
+            </div>
+            <div class="note-box">
+                DFS can be memory efficient, but it does not guarantee the shortest or least-cost path.
+            </div>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-header">
+                <span class="algorithm-number">03</span>
+                <div>
+                    <h3>Iterative Deepening Search</h3>
+                    <span class="algorithm-type">REPEATED DEPTH-LIMITED SEARCH</span>
+                </div>
+            </div>
+            <p>Repeatedly performs depth-limited DFS, increasing the depth limit each time.</p>
+            <div class="algorithm-details">
+                <div><span>Strategy</span><strong>Increasing depth</strong></div>
+                <div><span>Memory</span><strong>Low</strong></div>
+                <div><span>Advantage</span><strong>Combines DFS and BFS benefits</strong></div>
+            </div>
+        </div>
+
+        <div class="algorithm-card">
+            <div class="algorithm-header">
+                <span class="algorithm-number">04</span>
+                <div>
+                    <h3>Uniform Cost Search (UCS)</h3>
+                    <span class="algorithm-type">PRIORITY QUEUE</span>
+                </div>
+            </div>
+            <p>Expands the node with the lowest accumulated path cost.</p>
+            <div class="algorithm-details">
+                <div><span>Data structure</span><strong>Min-Heap</strong></div>
+                <div><span>Expansion</span><strong>Lowest g(n)</strong></div>
+                <div><span>Completeness</span><strong>Yes, under standard positive-cost assumptions</strong></div>
+                <div><span>Optimality</span><strong>Yes, non-negative costs</strong></div>
+            </div>
+            <div class="note-box">
+                UCS considers the cost already spent, but does not estimate the remaining distance to the goal.
+            </div>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">04 · INFORMED SEARCH</span>
+            <h2>Understanding A* Search</h2>
+            <p>A* combines the actual cost of a path with an estimate of the remaining cost.</p>
+        </div>
+
+        <div class="formula-card">
+            <span class="formula-label">A* EVALUATION FUNCTION</span>
+            <div class="main-formula">f(n) = g(n) + h(n)</div>
+            <p>The estimated total cost of a solution path through node n.</p>
+        </div>
+
+        <div class="concept-grid">
+            <article class="concept-card">
+                <span class="concept-icon">↙</span>
+                <h3>g(n)</h3>
+                <p>The exact path cost from the start node to the current node.</p>
+                <span class="concept-caption">PAST COST</span>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">↗</span>
+                <h3>h(n)</h3>
+                <p>The estimated remaining cost from the current node to the goal.</p>
+                <span class="concept-caption">FUTURE COST</span>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">Σ</span>
+                <h3>f(n)</h3>
+                <p>The sum of actual path cost and estimated future cost.</p>
+                <span class="concept-caption">TOTAL ESTIMATED COST</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">05 · HEURISTICS</span>
+            <h2>Heuristic Admissibility</h2>
+            <p>A heuristic helps an algorithm estimate how far a state is from the goal.</p>
+        </div>
+
+        <div class="formula-card">
+            <span class="formula-label">ADMISSIBILITY CONDITION</span>
+            <div class="main-formula">0 ≤ h(n) ≤ h*(n)</div>
+            <p>
+                An admissible heuristic never overestimates the true minimum
+                remaining cost to reach the goal.
+            </p>
+        </div>
+
+        <div class="note-box">
+            <strong>Why is this important?</strong>
+            <p>
+                An admissible heuristic guarantees that A* tree search
+                finds an optimal solution under the standard search assumptions.
+            </p>
+        </div>
+
+        <div class="concept-card">
+            <h3>What if the heuristic overestimates?</h3>
+            <p>
+                An inadmissible heuristic may cause A* to select a path that
+                appears promising but is not actually optimal.
+            </p>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">06 · PYTHON IMPLEMENTATION</span>
+            <h2>A* in Python</h2>
+            <p>Explore the main programming concepts used in grid pathfinding.</p>
+        </div>
+
+        <div class="code-concept">
+            <h3>1. Frontier Priority Queue</h3>
+            <p>Python's heapq maintains nodes according to their priority.</p>
+            <pre><code>import heapq
+
+frontier = []
+heapq.heappush(frontier, (f, g, state))
+
+current = heapq.heappop(frontier)</code></pre>
+        </div>
+
+        <div class="code-concept">
+            <h3>2. Manhattan Distance</h3>
+            <p>Used to estimate distance between two positions in a grid when movement is restricted to horizontal and vertical directions.</p>
+            <div class="formula-inline">
+                h = |x₁ − x₂| + |y₁ − y₂|
+            </div>
+        </div>
+
+        <div class="code-concept">
+            <h3>3. Path Reconstruction</h3>
+            <p>A came_from dictionary stores the parent of each visited node.</p>
+            <pre><code>came_from[neighbor] = current</code></pre>
+            <p>
+                After reaching the goal, trace backward through the parent
+                mapping until reaching the start. Reverse the resulting list
+                to obtain the complete path.
+            </p>
+            <pre><code>path.reverse()</code></pre>
+        </div>
+    </section>
+
+    <section class="lesson-section">
+        <div class="lesson-heading">
+            <span class="section-label">07 · COMPARISON</span>
+            <h2>A* Search vs. Uniform Cost Search</h2>
+            <p>Both algorithms use path costs, but A* also considers a heuristic.</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="lesson-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>UCS</th>
+                        <th>A*</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Evaluation</td>
+                        <td>g(n)</td>
+                        <td>g(n) + h(n)</td>
+                    </tr>
+                    <tr>
+                        <td>Past cost</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Heuristic</td>
+                        <td>No</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Optimality</td>
+                        <td>Yes, with non-negative costs</td>
+                        <td>Yes, with suitable admissible heuristics and search conditions</td>
+                    </tr>
+                    <tr>
+                        <td>Guidance</td>
+                        <td>Cost-based</td>
+                        <td>Cost and goal estimate</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="note-box">
+            <strong>Key relationship</strong>
+            <p>
+                If h(n) = 0 for every node, A* behaves exactly like UCS.
+                A useful admissible heuristic can reduce unnecessary node expansions
+                while preserving optimality.
+            </p>
+        </div>
+    </section>
+
+    <section class="takeaways">
+        <span class="section-label">CHAPTER SUMMARY</span>
+        <h2>Key Takeaways</h2>
+        <ul>
+            <li>Search problems consist of states, actions, costs, and goals.</li>
+            <li>BFS explores shallowest nodes first.</li>
+            <li>DFS explores deepest nodes first.</li>
+            <li>Iterative Deepening combines useful properties of BFS and DFS.</li>
+            <li>UCS expands nodes based on accumulated path cost.</li>
+            <li>A* combines actual cost and estimated future cost.</li>
+            <li>Admissible heuristics help A* find optimal solutions.</li>
+        </ul>
+    </section>
+
+    <section class="lesson-footer">
+        <div>
+            <span>AI FUNDAMENTALS · QAIRU</span>
+            <h2>Chapter 01 Completed</h2>
+            <p>Prepared by Abilashim Miras · Professor Gulzhan Uskenbayeva</p>
+        </div>
+        <a href="../index.html" class="primary-btn">Back to Dashboard →</a>
+    </section>
+
+</main>
+
+<footer class="lesson-bottom">
+    © 2026 QAIRU — Qazaq AI Research University
+</footer>
+
+</body>
+</html>

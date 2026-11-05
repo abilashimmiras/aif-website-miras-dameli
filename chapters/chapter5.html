@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 05 — Probability & Bayesian Networks</title>
+<link rel="stylesheet" href="../style.css">
+
+<style>
+.lesson{max-width:1100px;margin:auto;padding:36px 5%;color:#24334d}
+.lesson-header{margin-bottom:30px}
+.eyebrow{color:#4776d0;font-size:12px;font-weight:700;letter-spacing:1.5px}
+.lesson h1{font-size:clamp(30px,5vw,44px);line-height:1.15;margin:12px 0;color:#172b4d}
+.lesson h2{color:#203b68;font-size:24px;margin:0 0 14px}
+.lesson h3{color:#315b9d;margin:20px 0 8px}
+.lesson p,.lesson li{line-height:1.75;color:#52627a}
+.lesson-section{background:white;border:1px solid #e5ebf4;border-radius:16px;padding:26px;margin:22px 0;box-shadow:0 5px 18px rgba(35,65,110,.035)}
+.lesson-tag{display:inline-block;background:#edf3ff;color:#3565b5;padding:6px 11px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:12px}
+.formula{background:#f2f6fd;border-left:4px solid #648bd0;padding:18px;border-radius:9px;margin:14px 0;color:#234b89;font-family:Georgia,serif;font-size:18px;overflow-x:auto}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin-top:16px}
+.concept{background:#f7f9fd;border:1px solid #e8edf5;border-radius:12px;padding:16px}
+.concept strong{display:block;color:#315b9d;margin-bottom:7px}
+.concept p{font-size:14px;margin:0}
+.note{background:#f0f7ff;border-radius:10px;padding:15px 18px;margin:16px 0}
+.note strong{color:#315b9d}
+.compare{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px}
+.compare th,.compare td{border:1px solid #e5ebf4;padding:12px;text-align:left;vertical-align:top}
+.compare th{background:#f2f6fd;color:#315b9d}
+.interactive{background:#f7f9fd;border:1px solid #e2eaf6;border-radius:13px;padding:20px;margin-top:18px}
+.interactive label{display:block;font-weight:600;color:#344d73;margin:12px 0 6px}
+.interactive input{width:100%;max-width:230px;padding:9px;border:1px solid #ccd8e9;border-radius:8px;font-size:15px}
+.lesson button{background:#416fc2;color:white;border:0;padding:10px 17px;border-radius:8px;cursor:pointer;margin-top:13px;font-weight:600}
+.lesson button:hover{background:#315ba5}
+.result{margin-top:14px;padding:13px;background:white;border:1px solid #dce6f5;border-radius:9px;color:#315b9d;font-weight:600;line-height:1.6}
+.diagram{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}
+.node{background:#edf3ff;border:1px solid #c9d9f2;border-radius:12px;padding:14px 18px;text-align:center;color:#315b9d;font-weight:700;min-width:100px}
+.arrow{color:#7192c5;font-size:22px}
+.progress-track{background:#e8edf5;height:7px;border-radius:20px;margin:15px 0}
+.progress-fill{background:#5d86d0;height:7px;width:0%;border-radius:20px}
+.quiz-option{display:block;background:white;border:1px solid #dce5f1;border-radius:9px;padding:12px;margin:9px 0;cursor:pointer}
+.quiz-option input{margin-right:9px}
+.lesson-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:30px 0}
+.lesson-footer a{color:#416fc2;text-decoration:none;font-weight:600}
+@media(max-width:600px){.lesson-section{padding:19px}.compare{font-size:12px}.compare th,.compare td{padding:8px}}
+</style>
+</head>
+
+<body>
+<main class="lesson">
+
+<header class="lesson-header">
+<span class="eyebrow">AIF · LECTURE 05</span>
+<h1>Probability & Bayesian Networks</h1>
+<p>How intelligent systems reason under uncertainty, update beliefs using evidence, and represent complex probabilistic relationships.</p>
+<div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+<small id="progressText">Your reading progress: 0%</small>
+</header>
+
+<section class="lesson-section">
+<span class="lesson-tag">01 · Foundations</span>
+<h2>Why Probability Matters in AI</h2>
+<p>Artificial Intelligence systems often work with incomplete information, uncertain environments, and noisy sensor data. Probability provides a mathematical way to represent uncertainty and quantify how strongly an event is believed to occur.</p>
+
+<div class="concept-grid">
+<div class="concept"><strong>0</strong><p>An impossible event.</p></div>
+<div class="concept"><strong>0.5</strong><p>An event with a 50% probability.</p></div>
+<div class="concept"><strong>1</strong><p>An event that is certain.</p></div>
+</div>
+
+<h3>Random Variables</h3>
+<p>A random variable represents an uncertain quantity or outcome.</p>
+<p>For example, a machine's temperature can be represented as:</p>
+<div class="formula">T ∈ {Normal, High}</div>
+<p>The probabilities of all mutually exclusive and exhaustive outcomes must sum to 1.</p>
+<div class="formula">Σ P(X = x) = 1</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">02 · Probability Rules</span>
+<h2>Joint, Marginal & Conditional Probability</h2>
+
+<h3>Joint Probability</h3>
+<p>Joint probability measures the chance that two events happen together.</p>
+<div class="formula">P(A,B) = P(A ∩ B)</div>
+
+<h3>Marginal Probability</h3>
+<p>Marginalization removes variables that are not needed by summing over their possible values.</p>
+<div class="formula">P(A) = Σ<sub>b</sub> P(A,b)</div>
+
+<h3>Conditional Probability</h3>
+<p>Conditional probability describes the probability of event A given that event B has occurred.</p>
+<div class="formula">P(A|B) = P(A,B) / P(B)</div>
+
+<h3>Product Rule</h3>
+<div class="formula">P(A,B) = P(A|B) × P(B)</div>
+<p>The chain rule extends this idea to multiple random variables.</p>
+<div class="formula">P(A,B,C) = P(A|B,C)P(B|C)P(C)</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">03 · Bayesian Reasoning</span>
+<h2>Bayes' Theorem</h2>
+<p>Bayes' theorem allows us to update an initial belief using new evidence. It is especially useful when an AI system needs to estimate the probability of a hidden cause based on an observed result.</p>
+
+<div class="formula">
+P(Cause|Evidence) =
+[P(Evidence|Cause) × P(Cause)] / P(Evidence)
+</div>
+
+<div class="concept-grid">
+<div class="concept"><strong>Prior</strong><p>Initial belief before observing new evidence.</p></div>
+<div class="concept"><strong>Likelihood</strong><p>Probability of observing the evidence if the cause is true.</p></div>
+<div class="concept"><strong>Evidence</strong><p>Overall probability of the observed result.</p></div>
+<div class="concept"><strong>Posterior</strong><p>Updated belief after considering the evidence.</p></div>
+</div>
+
+<h3>Interactive Example: Machine Fault Detection</h3>
+<p>Suppose a factory has 1,000 machines. Only 5% have a fault. An alarm detects 90% of faulty machines, but it can also produce false alarms.</p>
+
+<div class="interactive">
+<label for="prior">Fault rate — P(F) (%)</label>
+<input id="prior" type="number" value="5" min="0" max="100" step="0.1">
+
+<label for="sensitivity">Alarm sensitivity — P(A|F) (%)</label>
+<input id="sensitivity" type="number" value="90" min="0" max="100" step="0.1">
+
+<label for="falseAlarm">False alarm rate — P(A|¬F) (%)</label>
+<input id="falseAlarm" type="number" value="10" min="0" max="100" step="0.1">
+
+<button onclick="calculateBayes()">Calculate posterior probability</button>
+<div class="result" id="bayesResult" aria-live="polite">P(Fault | Alarm) = 32.14%</div>
+</div>
+
+<div class="note">
+<strong>Important lesson:</strong> A detector with 90% sensitivity does not mean that an alarm indicates a 90% chance of a fault. The prior probability and false alarm rate also matter.
+</div>
+
+<h3>Base Rate Fallacy</h3>
+<p>The base rate fallacy occurs when people overlook how common or rare an event is before interpreting new evidence.</p>
+<p>Even an accurate detector can produce many false alarms when the underlying event is rare.</p>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">04 · Independence</span>
+<h2>Conditional Independence</h2>
+<p>Two variables X and Y are conditionally independent given Z when knowing Z makes additional knowledge of X unhelpful for predicting Y, and vice versa.</p>
+<div class="formula">P(X,Y|Z) = P(X|Z)P(Y|Z)</div>
+
+<h3>Explaining Away</h3>
+<p>Consider two possible causes of an alarm: a burglary and an earthquake.</p>
+<div class="diagram">
+<div class="node">Burglary</div>
+<div class="node">Earthquake</div>
+</div>
+<div class="diagram">
+<div class="arrow">↘</div>
+<div class="arrow">↙</div>
+<div class="node">Alarm</div>
+</div>
+<p>Before observing the alarm, burglary and earthquake may be independent. After observing the alarm, evidence for one cause can reduce the probability of the other cause.</p>
+<div class="note"><strong>Example:</strong> If an earthquake is confirmed, a burglary becomes a less likely explanation for the same alarm. This phenomenon is called explaining away.</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">05 · Bayesian Networks</span>
+<h2>What Is a Bayesian Network?</h2>
+<p>A Bayesian Network is a probabilistic graphical model represented by a Directed Acyclic Graph (DAG).</p>
+
+<div class="concept-grid">
+<div class="concept"><strong>Nodes</strong><p>Represent random variables.</p></div>
+<div class="concept"><strong>Directed Edges</strong><p>Represent direct probabilistic dependencies.</p></div>
+<div class="concept"><strong>DAG</strong><p>A directed graph with no directed cycles.</p></div>
+<div class="concept"><strong>CPT</strong><p>A Conditional Probability Table for each node given its parents.</p></div>
+</div>
+
+<h3>Example: Fire, Smoke and Alarm</h3>
+<div class="diagram">
+<div class="node">Fire</div>
+<div class="arrow">→</div>
+<div class="node">Smoke</div>
+<div class="arrow">→</div>
+<div class="node">Alarm</div>
+</div>
+
+<p>In this example:</p>
+<ul>
+<li>Fire can cause smoke.</li>
+<li>Smoke can trigger an alarm.</li>
+<li>Each node has a probability distribution conditioned on its parent nodes.</li>
+</ul>
+
+<h3>Conditional Probability Tables</h3>
+<p>A CPT stores the probability of a variable for each possible combination of its parent values. Root nodes have no parents and therefore store prior probabilities.</p>
+
+<h3>Network Factorization</h3>
+<p>The full joint probability distribution can be represented as a product of local conditional distributions.</p>
+<div class="formula">
+P(X₁,...,Xₙ) = ∏<sub>i=1</sub><sup>n</sup>
+P(Xᵢ | Parents(Xᵢ))
+</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">06 · Exact Inference</span>
+<h2>Inference in Bayesian Networks</h2>
+<p>Inference means calculating the probability of a query variable when some evidence is already known.</p>
+<div class="formula">P(Q|E) = P(Q,E) / P(E)</div>
+<p>Variables are often grouped into:</p>
+<ul>
+<li><strong>Query (Q):</strong> The variable whose probability we want to calculate.</li>
+<li><strong>Evidence (E):</strong> Variables with observed values.</li>
+<li><strong>Hidden (H):</strong> Variables that are not observed and must be summed out.</li>
+</ul>
+
+<h3>Enumeration</h3>
+<p>Enumeration explicitly considers all possible assignments of hidden variables and sums their contributions.</p>
+<div class="formula">Time complexity: O(dⁿ)</div>
+<p>It is straightforward but becomes expensive as the network grows.</p>
+
+<h3>Variable Elimination</h3>
+<p>Variable Elimination improves efficiency by combining probability factors and summing out hidden variables as early as possible. Intermediate calculations are reused rather than repeated.</p>
+<div class="note"><strong>Key distinction:</strong> Both enumeration and variable elimination are exact inference methods. Variable elimination can be much more efficient when the network has a favorable structure and low treewidth.</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">07 · Approximate Inference</span>
+<h2>Sampling Methods</h2>
+<p>For large networks, computing exact probabilities can be expensive. Sampling methods estimate probabilities using generated samples.</p>
+
+<h3>Prior Sampling</h3>
+<p>Generates samples from the Bayesian Network by following the graph from parent nodes to child nodes.</p>
+
+<h3>Rejection Sampling</h3>
+<p>Generates prior samples and rejects those that do not match the observed evidence.</p>
+<div class="note"><strong>Limitation:</strong> If evidence is rare, most samples may be rejected, wasting computation.</div>
+
+<h3>Likelihood Weighting</h3>
+<p>Fixes evidence variables to their observed values instead of rejecting samples. Each sample receives a weight based on the likelihood of the evidence given its parents.</p>
+
+<h3>Gibbs Sampling</h3>
+<p>A Markov Chain Monte Carlo (MCMC) method that repeatedly resamples hidden variables while keeping evidence fixed. Each hidden variable is sampled conditioned on its Markov blanket.</p>
+
+<table class="compare">
+<tr><th>Method</th><th>Category</th><th>Main idea</th><th>Rare evidence</th></tr>
+<tr><td>Enumeration</td><td>Exact</td><td>Sum over all hidden assignments</td><td>Exact result</td></tr>
+<tr><td>Variable Elimination</td><td>Exact</td><td>Reuse intermediate factors</td><td>Exact result</td></tr>
+<tr><td>Rejection Sampling</td><td>Approximate</td><td>Discard samples that disagree with evidence</td><td>Inefficient</td></tr>
+<tr><td>Likelihood Weighting</td><td>Approximate</td><td>Fix evidence and assign weights</td><td>Better suited</td></tr>
+<tr><td>Gibbs Sampling</td><td>Approximate</td><td>Resample hidden variables repeatedly</td><td>Can handle fixed evidence</td></tr>
+</table>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">08 · Python Implementation</span>
+<h2>Variable Elimination: Fire → Smoke → Alarm</h2>
+<p>The following example calculates the probability of fire given that the alarm is on.</p>
+
+<pre class="code-example"><code>p_fire = {
+    True: 0.02,
+    False: 0.98
+}
+
+p_smoke = {
+    True: {True: 0.90, False: 0.10},
+    False: {True: 0.05, False: 0.95}
+}
+
+p_alarm = {
+    True: 0.95,
+    False: 0.01
+}
+
+# Eliminate the hidden Smoke variable
+factor_phi = {}
+
+for fire in [True, False]:
+    factor_phi[fire] = sum(
+        p_smoke[fire][smoke] * p_alarm[smoke]
+        for smoke in [True, False]
+    )
+
+# Calculate unnormalized scores
+scores = {
+    f: p_fire[f] * factor_phi[f]
+    for f in p_fire
+}
+
+# Normalize
+posterior_fire = (
+    scores[True] / sum(scores.values())
+)
+
+print(f"P(Fire | Alarm=ON) = {posterior_fire:.2%}")</code></pre>
+
+<div class="note"><strong>Expected output:</strong> Approximately 23.46%.</div>
+
+<h3>Likelihood Weighting</h3>
+<pre class="code-example"><code>import random
+
+random.seed(42)
+yes_weight = 0.0
+total_weight = 0.0
+
+for _ in range(100000):
+    fire = random.random() < 0.02
+
+    smoke = random.random() < (
+        0.90 if fire else 0.05
+    )
+
+    # Evidence: Alarm = True
+    weight = 0.95 if smoke else 0.01
+
+    total_weight += weight
+
+    if fire:
+        yes_weight += weight
+
+print(yes_weight / total_weight)</code></pre>
+<p>This sampling approach estimates the same posterior probability. Its result may vary slightly depending on the samples generated.</p>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">09 · Knowledge Check</span>
+<h2>Test Your Understanding</h2>
+
+<div class="question">
+<h3>1. What does a Bayesian Network represent?</h3>
+<label class="quiz-option"><input type="radio" name="q1" value="a"> A directed acyclic graph of probabilistic dependencies</label>
+<label class="quiz-option"><input type="radio" name="q1" value="b"> A neural network for image classification</label>
+<label class="quiz-option"><input type="radio" name="q1" value="c"> A deterministic search tree</label>
+</div>
+
+<div class="question">
+<h3>2. What does marginalization do?</h3>
+<label class="quiz-option"><input type="radio" name="q2" value="a"> Multiplies all probabilities</label>
+<label class="quiz-option"><input type="radio" name="q2" value="b"> Sums over variables that are not needed</label>
+<label class="quiz-option"><input type="radio" name="q2" value="c"> Removes all evidence</label>
+</div>
+
+<div class="question">
+<h3>3. Which method rejects samples that do not match evidence?</h3>
+<label class="quiz-option"><input type="radio" name="q3" value="a"> Gibbs Sampling</label>
+<label class="quiz-option"><input type="radio" name="q3" value="b"> Likelihood Weighting</label>
+<label class="quiz-option"><input type="radio" name="q3" value="c"> Rejection Sampling</label>
+</div>
+
+<div class="question">
+<h3>4. What is the main advantage of Variable Elimination?</h3>
+<label class="quiz-option"><input type="radio" name="q4" value="a"> It avoids using probabilities</label>
+<label class="quiz-option"><input type="radio" name="q4" value="b"> It reuses intermediate calculations</label>
+<label class="quiz-option"><input type="radio" name="q4" value="c"> It only works with neural networks</label>
+</div>
+
+<div class="question">
+<h3>5. What is the posterior probability?</h3>
+<label class="quiz-option"><input type="radio" name="q5" value="a"> An initial belief before evidence</label>
+<label class="quiz-option"><input type="radio" name="q5" value="b"> An updated belief after considering evidence</label>
+<label class="quiz-option"><input type="radio" name="q5" value="c"> The probability of an impossible event</label>
+</div>
+
+<button onclick="checkQuiz()">Check my answers</button>
+<div class="result" id="quizResult" aria-live="polite">Your result will appear here.</div>
+</section>
+
+<section class="lesson-section">
+<span class="lesson-tag">10 · Summary</span>
+<h2>Key Takeaways</h2>
+<ul>
+<li>Probability allows AI systems to reason under uncertainty.</li>
+<li>Joint, marginal, and conditional probability describe relationships between events.</li>
+<li>Bayes' theorem updates beliefs using new evidence.</li>
+<li>Conditional independence simplifies probabilistic reasoning.</li>
+<li>Bayesian Networks represent dependencies using DAGs and CPTs.</li>
+<li>Enumeration and Variable Elimination perform exact inference.</li>
+<li>Sampling methods approximate probabilities in complex networks.</li>
+</ul>
+<div class="note"><strong>Central idea:</strong> Bayesian reasoning enables intelligent systems to update their beliefs when new information becomes available.</div>
+</section>
+
+<footer class="lesson-footer">
+<a href="../index.html">← Back to dashboard</a>
+<a href="chapter6.html">Next chapter →</a>
+</footer>
+
+</main>
+
+<script>
+// Reading progress
+window.addEventListener("scroll", () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = total > 0
+    ? Math.round(window.scrollY / total * 100)
+    : 0;
+
+  document.getElementById("progress").style.width = progress + "%";
+  document.getElementById("progressText").textContent =
+    "Your reading progress: " + progress + "%";
+});
+
+// Bayes' theorem calculator
+function calculateBayes() {
+  const prior = Number(document.getElementById("prior").value) / 100;
+  const sensitivity = Number(document.getElementById("sensitivity").value) / 100;
+  const falseAlarm = Number(document.getElementById("falseAlarm").value) / 100;
+
+  const values = [prior, sensitivity, falseAlarm];
+
+  if (!values.every(Number.isFinite) ||
+      values.some(v => v < 0 || v > 1)) {
+    document.getElementById("bayesResult").textContent =
+      "Enter valid percentages between 0 and 100.";
+    return;
+  }
+
+  const numerator = sensitivity * prior;
+  const denominator = numerator + falseAlarm * (1 - prior);
+
+  if (denominator === 0) {
+    document.getElementById("bayesResult").textContent =
+      "The probability cannot be calculated because P(Alarm) is zero.";
+    return;
+  }
+
+  const posterior = numerator / denominator;
+
+  document.getElementById("bayesResult").innerHTML =
+    "P(Fault | Alarm) = " + (posterior * 100).toFixed(2) +
+    "%<br>Probability of an alarm = " +
+    (denominator * 100).toFixed(2) + "%";
+}
+
+// Knowledge check
+function checkQuiz() {
+  const answers = {
+    q1: "a",
+    q2: "b",
+    q3: "c",
+    q4: "b",
+    q5: "b"
+  };
+
+  let score = 0;
+  let unanswered = 0;
+
+  for (const [question, correct] of Object.entries(answers)) {
+    const selected = document.querySelector(
+      'input[name="' + question + '"]:checked'
+    );
+
+    if (!selected) {
+      unanswered++;
+    } else if (selected.value === correct) {
+      score++;
+    }
+  }
+
+  const result = document.getElementById("quizResult");
+
+  if (unanswered > 0) {
+    result.textContent =
+      "Please answer all questions first. Remaining: " + unanswered;
+  } else {
+    result.textContent =
+      "You scored " + score + " out of 5. " +
+      (score === 5
+        ? "Excellent work!"
+        : "Review the lecture and try again.");
+  }
+}
+
+// Show initial example calculation
+calculateBayes();
+</script>
+
+</body>
+</html>

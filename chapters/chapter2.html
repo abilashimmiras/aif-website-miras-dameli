@@ -1,0 +1,1136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2 | AI Fundamentals</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .interactive-panel {
+            background: white;
+            border: 1px solid #e9edf5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .landscape {
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 8px;
+            height: 190px;
+            padding: 20px 10px 0;
+            background: #f4f7fd;
+            border-radius: 12px;
+        }
+
+        .landscape-bar {
+            flex: 1;
+            max-width: 55px;
+            background: #cddcff;
+            border-radius: 7px 7px 0 0;
+            position: relative;
+            transition: height .3s;
+        }
+
+        .landscape-bar.current {
+            background: #2459d3;
+        }
+
+        .landscape-bar.visited {
+            background: #85a9f5;
+        }
+
+        .demo-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .demo-controls button {
+            border: none;
+            background: #2459d3;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .demo-controls button.secondary {
+            background: #edf3ff;
+            color: #2459d3;
+        }
+
+        .demo-status {
+            color: #64728b;
+            font-size: 12px;
+            margin-top: 15px;
+            line-height: 1.7;
+        }
+
+        .failure-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .failure-card {
+            background: white;
+            border: 1px solid #e9edf5;
+            border-radius: 13px;
+            padding: 18px;
+        }
+
+        .failure-card svg {
+            width: 100%;
+            height: 100px;
+            margin: 12px 0;
+        }
+
+        .failure-card h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .failure-card p {
+            color: #7d899d;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 25px;
+            background: #f4f7fd;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .process-step {
+            background: white;
+            border: 1px solid #dce6fa;
+            border-radius: 9px;
+            padding: 13px 16px;
+            text-align: center;
+            color: #2459d3;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .process-arrow {
+            color: #929db0;
+            font-weight: 700;
+        }
+
+        .temperature-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .temperature-item {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f4f7fd;
+        }
+
+        .temperature-item strong {
+            color: #2459d3;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .temperature-item p {
+            font-size: 12px;
+            color: #7d899d;
+            line-height: 1.7;
+        }
+
+        .chapter-code {
+            background: #15233d;
+            color: #dce8ff;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 15px;
+        }
+
+        .definition-box {
+            background: #edf3ff;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 18px;
+            color: #64728b;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .definition-box strong {
+            color: #2459d3;
+        }
+
+        @media (max-width: 700px) {
+            .failure-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .temperature-box {
+                grid-template-columns: 1fr;
+            }
+
+            .landscape {
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body class="lesson-page">
+
+<header class="lesson-topbar">
+    <a href="../index.html" class="back-link">← Back to Dashboard</a>
+    <div class="lesson-brand">QAIRU <span>· AIF</span></div>
+</header>
+
+<main class="lesson-container">
+
+    <div class="lesson-breadcrumb">
+        AI Fundamentals / Lecture Chapters / Chapter 02
+    </div>
+
+    <!-- HERO -->
+
+    <section class="lesson-hero">
+        <span class="lesson-tag">LECTURE 02 · OPTIMIZATION</span>
+
+        <h1>Local Search &<br>
+            <span>Optimization Algorithms</span>
+        </h1>
+
+        <p>
+            Discover how intelligent systems optimize solutions,
+            explore complex landscapes, and find the best possible
+            configurations using local search strategies.
+        </p>
+
+        <div class="lesson-meta">
+            <span>AI Fundamentals</span>
+            <span>QAIRU</span>
+            <span>Academic Year 2026</span>
+        </div>
+    </section>
+
+
+    <!-- SECTION 01 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">01 · FUNDAMENTALS</span>
+            <h2>Foundations of Local Search</h2>
+            <p>
+                Local search is an optimization technique that
+                improves a candidate solution by exploring its
+                neighboring states.
+            </p>
+        </div>
+
+        <div class="concept-grid">
+
+            <article class="concept-card">
+                <span class="concept-icon">◈</span>
+                <h3>Candidate State</h3>
+                <p>
+                    A complete possible solution to an optimization
+                    problem.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">⇄</span>
+                <h3>Neighbor Definition</h3>
+                <p>
+                    Defines how one candidate solution can be changed
+                    into another nearby solution.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">Σ</span>
+                <h3>Objective Function</h3>
+                <p>
+                    Measures the quality of a candidate solution
+                    through maximization or minimization.
+                </p>
+            </article>
+
+        </div>
+
+        <div class="note-box">
+            <strong>Core idea</strong>
+            <p>
+                Unlike classical search, local search focuses on
+                finding a good final configuration rather than
+                remembering every step taken to reach it.
+            </p>
+        </div>
+
+        <div class="formula-card">
+            <span class="formula-label">LOCAL SEARCH MEMORY</span>
+            <div class="main-formula">O(1) or O(K)</div>
+            <p>
+                Local search retains only a small number of candidate
+                states instead of maintaining a large search frontier.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 02 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">02 · COMPARISON</span>
+            <h2>Local Search vs. Classical Search</h2>
+            <p>
+                Both approaches explore possible solutions, but
+                their objectives and memory requirements are different.
+            </p>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="lesson-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Classical Search</th>
+                        <th>Local Search</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Primary goal</td>
+                        <td>Find a path from start to goal</td>
+                        <td>Find an optimal configuration</td>
+                    </tr>
+
+                    <tr>
+                        <td>Memory</td>
+                        <td>Stores search frontier</td>
+                        <td>Stores current candidate states</td>
+                    </tr>
+
+                    <tr>
+                        <td>Search space</td>
+                        <td>Graphs and search trees</td>
+                        <td>Optimization landscape</td>
+                    </tr>
+
+                    <tr>
+                        <td>Examples</td>
+                        <td>A*, BFS, DFS, UCS</td>
+                        <td>Hill Climbing, SA, GA</td>
+                    </tr>
+
+                    <tr>
+                        <td>Applications</td>
+                        <td>Pathfinding and navigation</td>
+                        <td>N-Queens, TSP, optimization</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="concept-grid" style="margin-top:20px">
+
+            <article class="concept-card">
+                <h3>Classical Search</h3>
+                <p>
+                    Imagine finding the shortest route from your
+                    university to your home.
+                </p>
+                <span class="concept-caption">PATH OPTIMIZATION</span>
+            </article>
+
+            <article class="concept-card">
+                <h3>Local Search</h3>
+                <p>
+                    Imagine arranging university classrooms to
+                    maximize space efficiency.
+                </p>
+                <span class="concept-caption">CONFIGURATION OPTIMIZATION</span>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 03 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">03 · GREEDY OPTIMIZATION</span>
+            <h2>Hill Climbing</h2>
+            <p>
+                Hill Climbing is a simple local search algorithm
+                that repeatedly moves to a better neighboring state.
+            </p>
+        </div>
+
+        <div class="formula-card">
+            <span class="formula-label">ALGORITHM STRATEGY</span>
+            <div class="main-formula">Current → Better Neighbor</div>
+            <p>
+                Continue improving the current solution until
+                no neighboring state offers a better result.
+            </p>
+        </div>
+
+        <div class="process-flow">
+            <div class="process-step">Initial State</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Evaluate Neighbors</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Choose Best</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Repeat</div>
+        </div>
+
+        <div class="interactive-panel">
+
+            <h3>Interactive Hill Climbing Demo</h3>
+
+            <p style="font-size:12px;color:#7d899d;margin-top:8px">
+                Start at a position and watch the algorithm move
+                toward a higher neighboring value.
+            </p>
+
+            <div class="landscape" id="landscape"></div>
+
+            <div class="demo-controls">
+                <button onclick="runHillClimbing()">Run Algorithm</button>
+                <button class="secondary" onclick="resetHillClimbing()">
+                    Reset
+                </button>
+            </div>
+
+            <div class="demo-status" id="demoStatus">
+                Ready. Press Run Algorithm to begin.
+            </div>
+
+        </div>
+
+        <div class="lesson-heading" style="margin-top:35px">
+            <h2>Three Main Failure Modes</h2>
+            <p>
+                Hill Climbing can become trapped because it only
+                considers nearby neighboring states.
+            </p>
+        </div>
+
+        <div class="failure-grid">
+
+            <article class="failure-card">
+                <h3>01. Local Maximum</h3>
+
+                <svg viewBox="0 0 200 100">
+                    <path d="M5 90 Q40 80 65 45 Q85 15 105 35 Q125 55 145 70 Q170 85 195 90"
+                    fill="none" stroke="#2459d3" stroke-width="3"/>
+                    <circle cx="105" cy="35" r="5" fill="#2459d3"/>
+                </svg>
+
+                <p>
+                    A peak that is higher than its immediate
+                    neighbors but lower than the global maximum.
+                </p>
+            </article>
+
+            <article class="failure-card">
+                <h3>02. Plateau</h3>
+
+                <svg viewBox="0 0 200 100">
+                    <path d="M5 85 Q35 85 55 45 L75 35 L130 35 L150 45 Q170 85 195 85"
+                    fill="none" stroke="#2459d3" stroke-width="3"/>
+                    <path d="M75 35 L130 35"
+                    stroke="#85a9f5" stroke-width="5"/>
+                </svg>
+
+                <p>
+                    A flat area where neighboring states have
+                    the same evaluation value.
+                </p>
+            </article>
+
+            <article class="failure-card">
+                <h3>03. Ridge</h3>
+
+                <svg viewBox="0 0 200 100">
+                    <path d="M5 85 L45 65 L75 72 L105 35 L130 45 L165 15 L195 30"
+                    fill="none" stroke="#2459d3" stroke-width="3"/>
+                </svg>
+
+                <p>
+                    A narrow ascending region where reaching a
+                    better state may require combined moves.
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 04 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">04 · ADVANCED STRATEGIES</span>
+            <h2>Escaping Local Traps</h2>
+            <p>
+                Several strategies improve local search by introducing
+                randomness, multiple candidates, or controlled exploration.
+            </p>
+        </div>
+
+        <div class="algorithm-card">
+
+            <div class="algorithm-header">
+                <span class="algorithm-number">01</span>
+                <div>
+                    <h3>Random-Restart Hill Climbing</h3>
+                    <span class="algorithm-type">MULTIPLE INITIAL STATES</span>
+                </div>
+            </div>
+
+            <p>
+                Runs Hill Climbing several times, each time starting
+                from a randomly selected initial state.
+            </p>
+
+            <div class="process-flow">
+                <div class="process-step">Random Start</div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">Hill Climbing</div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">Store Best</div>
+            </div>
+
+            <div class="note-box">
+                <strong>Advantage</strong>
+                <p>
+                    Different starting positions allow the algorithm
+                    to explore different regions of the search space.
+                </p>
+            </div>
+
+        </div>
+
+
+        <div class="algorithm-card">
+
+            <div class="algorithm-header">
+                <span class="algorithm-number">02</span>
+                <div>
+                    <h3>Simulated Annealing</h3>
+                    <span class="algorithm-type">PROBABILISTIC SEARCH</span>
+                </div>
+            </div>
+
+            <p>
+                Inspired by the physical process of annealing in
+                metallurgy. It sometimes accepts worse solutions
+                to escape local maxima.
+            </p>
+
+            <div class="formula-card">
+                <span class="formula-label">ACCEPTANCE PROBABILITY</span>
+                <div class="main-formula">P = e<sup>ΔE / T</sup></div>
+                <p>
+                    ΔE represents the change in objective value
+                    and T represents temperature.
+                </p>
+            </div>
+
+            <div class="temperature-box">
+
+                <div class="temperature-item">
+                    <strong>High Temperature</strong>
+                    <p>
+                        More exploration. Worse moves have a
+                        higher probability of acceptance.
+                    </p>
+                </div>
+
+                <div class="temperature-item">
+                    <strong>Low Temperature</strong>
+                    <p>
+                        More exploitation. The algorithm increasingly
+                        favors improving moves.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="definition-box">
+                <strong>Cooling schedule:</strong>
+                Temperature gradually decreases over time.
+
+                <div class="formula-inline" style="margin-top:12px">
+                    T ← T × α
+                </div>
+
+                Here, α is a cooling factor between 0 and 1.
+            </div>
+
+        </div>
+
+
+        <div class="algorithm-card">
+
+            <div class="algorithm-header">
+                <span class="algorithm-number">03</span>
+                <div>
+                    <h3>Local Beam Search</h3>
+                    <span class="algorithm-type">MULTIPLE CANDIDATE STATES</span>
+                </div>
+            </div>
+
+            <p>
+                Maintains K candidate states simultaneously.
+                It generates their successors and selects the
+                best K states overall.
+            </p>
+
+            <div class="process-flow">
+                <div class="process-step">K States</div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">All Successors</div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">Top K</div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">Repeat</div>
+            </div>
+
+            <div class="note-box">
+                <strong>Important distinction</strong>
+                <p>
+                    Unlike K independent Hill Climbing runs,
+                    Local Beam Search shares information by
+                    selecting the best successors across all
+                    current candidates.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 05 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">05 · EVOLUTIONARY COMPUTING</span>
+            <h2>Genetic Algorithms</h2>
+            <p>
+                Genetic Algorithms use ideas inspired by biological
+                evolution to improve a population of candidate solutions.
+            </p>
+        </div>
+
+        <div class="concept-grid">
+
+            <article class="concept-card">
+                <span class="concept-icon">◉</span>
+                <h3>Population</h3>
+                <p>
+                    A collection of candidate solutions,
+                    often represented as chromosomes.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">★</span>
+                <h3>Fitness</h3>
+                <p>
+                    Measures how suitable each candidate is
+                    for solving the optimization problem.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">↻</span>
+                <h3>Generations</h3>
+                <p>
+                    New populations are created through
+                    selection, crossover, and mutation.
+                </p>
+            </article>
+
+        </div>
+
+        <div class="process-flow">
+
+            <div class="process-step">Initial Population</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Selection</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Crossover</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">Mutation</div>
+            <span class="process-arrow">→</span>
+            <div class="process-step">New Generation</div>
+
+        </div>
+
+        <div class="algorithm-card" style="margin-top:20px">
+
+            <h3>Three Main Genetic Operations</h3>
+
+            <div class="algorithm-details">
+
+                <div>
+                    <span>01 · Selection</span>
+                    <strong>Choose fit parents</strong>
+                </div>
+
+                <div>
+                    <span>02 · Crossover</span>
+                    <strong>Combine parent solutions</strong>
+                </div>
+
+                <div>
+                    <span>03 · Mutation</span>
+                    <strong>Introduce random changes</strong>
+                </div>
+
+                <div>
+                    <span>Objective</span>
+                    <strong>Improve future generations</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="note-box">
+            <strong>Why mutation matters</strong>
+            <p>
+                Mutation maintains genetic diversity and helps
+                prevent premature convergence to a limited
+                region of the search space.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 06 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">06 · CONTINUOUS OPTIMIZATION</span>
+            <h2>Gradient Descent</h2>
+            <p>
+                Continuous optimization works with real-valued
+                variables instead of a finite collection of discrete states.
+            </p>
+        </div>
+
+        <div class="concept-grid">
+
+            <article class="concept-card">
+                <h3>Continuous Domains</h3>
+                <p>
+                    Variables can take real-number values
+                    belonging to Rⁿ.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <h3>Random Perturbations</h3>
+                <p>
+                    Small random changes can be applied to
+                    candidate variable values.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <h3>Gradient Methods</h3>
+                <p>
+                    Calculus-based techniques use derivatives
+                    to optimize differentiable functions.
+                </p>
+            </article>
+
+        </div>
+
+        <div class="formula-card" style="margin-top:22px">
+            <span class="formula-label">GRADIENT DESCENT UPDATE RULE</span>
+            <div class="main-formula">
+                x ← x − α∇f(x)
+            </div>
+            <p>
+                Variables are updated in the opposite direction
+                of the gradient to locate a minimum.
+            </p>
+        </div>
+
+        <div class="algorithm-details">
+
+            <div>
+                <span>x</span>
+                <strong>Current parameter values</strong>
+            </div>
+
+            <div>
+                <span>α</span>
+                <strong>Learning rate / step size</strong>
+            </div>
+
+            <div>
+                <span>∇f(x)</span>
+                <strong>Gradient of the function</strong>
+            </div>
+
+            <div>
+                <span>Goal</span>
+                <strong>Minimize the objective function</strong>
+            </div>
+
+        </div>
+
+        <div class="note-box">
+            <strong>Key concept</strong>
+            <p>
+                The gradient points in the direction of steepest
+                increase. Gradient Descent moves in the opposite
+                direction to reduce the function value.
+            </p>
+        </div>
+
+    </section>
+
+
+    <!-- SECTION 07 -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">07 · PYTHON IMPLEMENTATION</span>
+            <h2>Local Search in Python</h2>
+            <p>
+                Let's examine how the main optimization strategies
+                can be implemented in Python.
+            </p>
+        </div>
+
+        <div class="code-concept">
+
+            <h3>1. Hill Climbing — 1D Landscape</h3>
+
+            <p>
+                The algorithm checks neighboring positions and
+                moves to the one with the highest value.
+            </p>
+
+            <pre class="chapter-code"><code>def hill_climbing(values, start):
+    current = start
+
+    while True:
+        neighbors = []
+
+        if current > 0:
+            neighbors.append(current - 1)
+
+        if current < len(values) - 1:
+            neighbors.append(current + 1)
+
+        best = current
+
+        for n in neighbors:
+            if values[n] > values[best]:
+                best = n
+
+        if best == current:
+            break
+
+        current = best
+
+    return current</code></pre>
+
+            <div class="definition-box">
+                <strong>Explanation:</strong>
+                The function examines adjacent positions,
+                chooses the best improvement, and stops
+                when no better neighbor exists.
+            </div>
+
+        </div>
+
+
+        <div class="code-concept">
+
+            <h3>2. Simulated Annealing — Acceptance Rule</h3>
+
+            <p>
+                This function determines whether a new candidate
+                solution should be accepted.
+            </p>
+
+            <pre class="chapter-code"><code>import math
+import random
+
+def accept_check(delta_e, temperature):
+
+    if delta_e > 0:
+        return True
+
+    return random.random() < math.exp(
+        delta_e / temperature
+    )</code></pre>
+
+            <div class="definition-box">
+                <strong>Explanation:</strong>
+                Improving moves are accepted automatically.
+                Worse moves may also be accepted depending
+                on temperature and their objective difference.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- APPLICATIONS -->
+
+    <section class="lesson-section">
+
+        <div class="lesson-heading">
+            <span class="section-label">REAL-WORLD APPLICATIONS</span>
+            <h2>Where Is Local Search Used?</h2>
+            <p>
+                Optimization algorithms solve problems where
+                finding a good configuration is more important
+                than finding a particular path.
+            </p>
+        </div>
+
+        <div class="concept-grid">
+
+            <article class="concept-card">
+                <span class="concept-icon">♛</span>
+                <h3>N-Queens Problem</h3>
+                <p>
+                    Place N queens on a chessboard while minimizing
+                    the number of attacking queen pairs.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">⌖</span>
+                <h3>Travelling Salesperson</h3>
+                <p>
+                    Find a short route visiting every city,
+                    using techniques such as 2-opt edge swaps.
+                </p>
+            </article>
+
+            <article class="concept-card">
+                <span class="concept-icon">⌘</span>
+                <h3>Parameter Optimization</h3>
+                <p>
+                    Adjust continuous model parameters to
+                    minimize an objective or loss function.
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- KEY TAKEAWAYS -->
+
+    <section class="takeaways">
+
+        <span class="section-label">CHAPTER SUMMARY</span>
+
+        <h2>Key Takeaways</h2>
+
+        <ul>
+            <li>Local Search optimizes complete configurations rather than paths.</li>
+            <li>It requires relatively little memory.</li>
+            <li>Hill Climbing moves toward better neighboring states.</li>
+            <li>Local maxima, plateaus, and ridges can trap greedy search.</li>
+            <li>Random Restarts explore different initial states.</li>
+            <li>Simulated Annealing can accept worse moves using temperature.</li>
+            <li>Local Beam Search maintains K candidate states.</li>
+            <li>Genetic Algorithms use selection, crossover, and mutation.</li>
+            <li>Gradient Descent updates variables using the negative gradient.</li>
+            <li>N-Queens and TSP are important local search applications.</li>
+        </ul>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <section class="lesson-footer">
+
+        <div>
+            <span>AI FUNDAMENTALS · QAIRU</span>
+
+            <h2>Chapter 02 Completed</h2>
+
+            <p>
+                Prepared by Abilashim Miras ·
+                Professor Gulzhan Uskenbayeva
+            </p>
+        </div>
+
+        <a href="../index.html" class="primary-btn">
+            Back to Dashboard →
+        </a>
+
+    </section>
+
+</main>
+
+<footer class="lesson-bottom">
+    © 2026 QAIRU — Qazaq AI Research University
+</footer>
+
+
+<script>
+
+    // Interactive Hill Climbing Demonstration
+
+    const values = [
+        2, 4, 7, 5, 9, 6, 4, 8, 12, 10, 7, 5
+    ];
+
+    let current = 0;
+    let visited = [];
+    let finished = false;
+
+    const landscape = document.getElementById("landscape");
+    const status = document.getElementById("demoStatus");
+
+    function drawLandscape() {
+
+        landscape.innerHTML = "";
+
+        values.forEach((value, index) => {
+
+            const bar = document.createElement("div");
+
+            bar.className = "landscape-bar";
+
+            if (index === current) {
+                bar.classList.add("current");
+            } else if (visited.includes(index)) {
+                bar.classList.add("visited");
+            }
+
+            bar.style.height = (value * 11) + "px";
+
+            bar.title = "Position " + index + ": " + value;
+
+            landscape.appendChild(bar);
+
+        });
+
+    }
+
+    function runHillClimbing() {
+
+        if (finished) {
+            status.textContent =
+                "Search completed. Press Reset to try again.";
+            return;
+        }
+
+        let neighbors = [];
+
+        if (current > 0) {
+            neighbors.push(current - 1);
+        }
+
+        if (current < values.length - 1) {
+            neighbors.push(current + 1);
+        }
+
+        let best = current;
+
+        neighbors.forEach(n => {
+
+            if (values[n] > values[best]) {
+                best = n;
+            }
+
+        });
+
+        if (best === current) {
+
+            finished = true;
+
+            status.textContent =
+                "Local maximum reached at position " +
+                current + " with value " + values[current] + ".";
+
+            return;
+
+        }
+
+        visited.push(current);
+        current = best;
+
+        drawLandscape();
+
+        status.textContent =
+            "Moved to position " + current +
+            ". Current value: " + values[current] +
+            ". Click Run Algorithm to continue.";
+
+    }
+
+    function resetHillClimbing() {
+
+        current = 0;
+        visited = [];
+        finished = false;
+
+        drawLandscape();
+
+        status.textContent =
+            "Reset complete. Start position: 0.";
+
+    }
+
+    drawLandscape();
+
+</script>
+
+</body>
+</html>

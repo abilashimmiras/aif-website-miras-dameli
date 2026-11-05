@@ -1,0 +1,1147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — Hidden Markov Models</title>
+
+<style>
+:root {
+  --blue: #2457d6;
+  --blue-light: #edf3ff;
+  --blue-dark: #173b9b;
+  --text: #202b3c;
+  --muted: #68758a;
+  --border: #e3e9f3;
+  --bg: #f7f9fd;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: var(--blue);
+  width: 0%;
+  z-index: 100;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 255px;
+  background: white;
+  border-right: 1px solid var(--border);
+  padding: 28px 18px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.brand {
+  font-size: 17px;
+  font-weight: 750;
+  color: var(--blue);
+  margin-bottom: 8px;
+}
+
+.course-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+
+.sidebar h4 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #98a3b5;
+  letter-spacing: 1.2px;
+  margin: 20px 10px 10px;
+}
+
+.sidebar a {
+  display: block;
+  text-decoration: none;
+  color: #59667b;
+  font-size: 13px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  margin: 3px 0;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.main {
+  margin-left: 255px;
+  width: calc(100% - 255px);
+  padding: 35px 6%;
+  max-width: 1500px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+}
+
+.topbar span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.chapter-label {
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero {
+  background: linear-gradient(120deg, #eaf1ff, #f7f9ff);
+  border: 1px solid #dce7ff;
+  border-radius: 20px;
+  padding: 42px;
+  margin-bottom: 30px;
+}
+
+.hero h1 {
+  font-size: clamp(28px, 4vw, 43px);
+  line-height: 1.2;
+  margin: 12px 0;
+  color: #182b54;
+}
+
+.hero p {
+  color: #65738b;
+  max-width: 700px;
+}
+
+.hero-meta {
+  margin-top: 25px;
+  font-size: 12px;
+  color: #62718b;
+}
+
+.section {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 22px;
+  scroll-margin-top: 25px;
+}
+
+.section h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.section h3 {
+  font-size: 16px;
+  margin: 20px 0 8px;
+}
+
+.section p {
+  color: #59667b;
+  margin-bottom: 12px;
+}
+
+.section ul {
+  padding-left: 22px;
+  color: #59667b;
+  margin: 12px 0;
+}
+
+.section li {
+  margin-bottom: 7px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.info-card {
+  background: #f8faff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 17px;
+}
+
+.info-card h3 {
+  color: var(--blue);
+  margin: 0 0 8px;
+}
+
+.info-card p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.formula {
+  background: #f0f5ff;
+  border-left: 4px solid var(--blue);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 16px 0;
+  color: #1b3d91;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.note {
+  background: #f5f8fc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 15px;
+  color: #59667b;
+  font-size: 13px;
+  margin: 15px 0;
+}
+
+.diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 25px 5px;
+}
+
+.node {
+  background: var(--blue-light);
+  border: 1px solid #cbdcff;
+  border-radius: 12px;
+  padding: 15px 20px;
+  text-align: center;
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+
+.arrow {
+  color: var(--blue);
+  font-size: 23px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 18px 0;
+  font-size: 13px;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: #f0f5ff;
+  color: #24458d;
+}
+
+tr:nth-child(even) {
+  background: #fafbfe;
+}
+
+.code {
+  background: #172238;
+  color: #dce8ff;
+  border-radius: 12px;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 15px 0;
+  white-space: pre;
+}
+
+.interactive {
+  background: #f8faff;
+  border: 1px solid #dce7ff;
+  border-radius: 14px;
+  padding: 22px;
+  margin-top: 18px;
+}
+
+.interactive label {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  margin: 12px 0 5px;
+}
+
+.interactive select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #d7dfed;
+  border-radius: 8px;
+  background: white;
+  color: var(--text);
+  font-size: 14px;
+}
+
+button {
+  border: none;
+  background: var(--blue);
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 650;
+  margin-top: 15px;
+}
+
+button:hover {
+  background: var(--blue-dark);
+}
+
+.result {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.bar-row {
+  margin: 12px 0;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.bar-bg {
+  height: 13px;
+  background: #e8edf5;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 20px;
+  transition: width .3s;
+}
+
+.quiz-question {
+  border: 1px solid var(--border);
+  padding: 17px;
+  border-radius: 12px;
+  margin: 14px 0;
+}
+
+.quiz-question p {
+  font-weight: 650;
+  color: var(--text);
+}
+
+.quiz-question label {
+  display: block;
+  font-size: 13px;
+  color: #59667b;
+  margin: 9px 0;
+  cursor: pointer;
+}
+
+.quiz-result {
+  font-weight: 700;
+  color: var(--blue);
+  margin-top: 15px;
+}
+
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.footer a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+@media(max-width: 850px) {
+  .sidebar {
+    display: none;
+  }
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding: 27px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="brand">QAIRU · AIF</div>
+  <div class="course-label">AI Fundamentals · 2026</div>
+
+  <h4>Chapter navigation</h4>
+  <a href="#overview">01 · Overview</a>
+  <a href="#foundations">02 · HMM Foundations</a>
+  <a href="#structure">03 · HMM Structure</a>
+  <a href="#filtering">04 · Filtering</a>
+  <a href="#prediction">05 · Prediction</a>
+  <a href="#smoothing">06 · Smoothing</a>
+  <a href="#viterbi">07 · Viterbi Algorithm</a>
+  <a href="#comparison">08 · Four Inference Tasks</a>
+  <a href="#python">09 · Python Implementation</a>
+  <a href="#quiz">10 · Knowledge Check</a>
+
+  <h4>Course</h4>
+  <a href="../index.html">← Back to Dashboard</a>
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+  <span>QAIRU — Qazaq AI Research University</span>
+  <span>AIF · Academic Year 2026</span>
+</div>
+
+<div class="hero" id="overview">
+  <div class="chapter-label">Chapter 06 · Sequential Models</div>
+  <h1>Hidden Markov Models</h1>
+  <p>
+    Understanding how artificial intelligence estimates hidden states
+    from observations, predicts future conditions, and discovers
+    the most probable sequence of events.
+  </p>
+  <div class="hero-meta">
+    AI FUNDAMENTALS · PREPARED BY ABILASHIM MIRAS ·
+    PROFESSOR GULZHAN USKENBAYEVA
+  </div>
+</div>
+
+<section class="section" id="foundations">
+  <h2>01. What Are Hidden Markov Models?</h2>
+
+  <p>
+    A Hidden Markov Model (HMM) is a statistical model used to understand
+    systems where the actual condition is hidden, but we can observe
+    indirect measurements.
+  </p>
+
+  <p>
+    For example, a machine may be Healthy, Degrading, or Faulty.
+    We cannot directly observe its internal condition, but we can
+    measure temperature, vibration, and noise.
+  </p>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>Hidden States (X)</h3>
+      <p>The actual conditions of a system that cannot be directly observed.</p>
+    </div>
+    <div class="info-card">
+      <h3>Observations (E)</h3>
+      <p>Measurements or signals generated by the hidden states.</p>
+    </div>
+    <div class="info-card">
+      <h3>Time Sequence</h3>
+      <p>Observations arrive over time and help us estimate the hidden state.</p>
+    </div>
+  </div>
+
+  <div class="diagram">
+    <div class="node">Hidden State<br>Healthy / Faulty</div>
+    <div class="arrow">→</div>
+    <div class="node">Observation<br>Temperature / Vibration</div>
+  </div>
+
+  <h3>The Markov Assumption</h3>
+  <p>
+    The future state depends only on the current state, not the entire
+    previous history.
+  </p>
+
+  <div class="formula">
+    P(Xₜ₊₁ | Xₜ, Xₜ₋₁, ...) = P(Xₜ₊₁ | Xₜ)
+  </div>
+
+  <div class="note">
+    <strong>Key idea:</strong> The current state summarizes the relevant
+    information from the past.
+  </div>
+</section>
+
+<section class="section" id="structure">
+  <h2>02. The Three Components of an HMM</h2>
+
+  <p>
+    An HMM is represented by three main components:
+  </p>
+
+  <div class="formula">λ = (π, T, O)</div>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>π — Initial Probabilities</h3>
+      <p>
+        Describes the probability distribution over hidden states
+        at the beginning of the sequence.
+      </p>
+      <div class="formula">π = [0.80, 0.20]</div>
+    </div>
+
+    <div class="info-card">
+      <h3>T — Transition Matrix</h3>
+      <p>
+        Describes the probability of moving from one hidden state
+        to another.
+      </p>
+      <div class="formula">Tᵢⱼ = P(Xₜ = j | Xₜ₋₁ = i)</div>
+    </div>
+
+    <div class="info-card">
+      <h3>O — Emission Matrix</h3>
+      <p>
+        Describes the probability of observing a measurement
+        given the current hidden state.
+      </p>
+      <div class="formula">Oⱼ(e) = P(Eₜ = e | Xₜ = j)</div>
+    </div>
+  </div>
+
+  <h3>Example: Machine Health Model</h3>
+
+  <p>Our model has two possible states: Healthy (H) and Faulty (F).</p>
+
+  <table>
+    <tr>
+      <th>Current state</th>
+      <th>Next: Healthy</th>
+      <th>Next: Faulty</th>
+    </tr>
+    <tr>
+      <td>Healthy</td>
+      <td>0.90</td>
+      <td>0.10</td>
+    </tr>
+    <tr>
+      <td>Faulty</td>
+      <td>0.20</td>
+      <td>0.80</td>
+    </tr>
+  </table>
+
+  <div class="formula">
+    T = [[0.90, 0.10], [0.20, 0.80]]
+  </div>
+
+  <p>Emission probabilities:</p>
+
+  <table>
+    <tr>
+      <th>Hidden state</th>
+      <th>Normal reading</th>
+      <th>High reading</th>
+    </tr>
+    <tr>
+      <td>Healthy</td>
+      <td>0.80</td>
+      <td>0.20</td>
+    </tr>
+    <tr>
+      <td>Faulty</td>
+      <td>0.30</td>
+      <td>0.70</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Each row of the transition matrix sums to 1. The emission
+    probabilities for each hidden state also sum to 1.
+  </div>
+</section>
+
+<section class="section" id="filtering">
+  <h2>03. Filtering — What Is Happening Now?</h2>
+
+  <p>
+    Filtering estimates the current hidden state using all observations
+    received so far.
+  </p>
+
+  <div class="formula">
+    P(Xₜ | e₁:ₜ)
+  </div>
+
+  <h3>The Predict–Correct–Normalize Cycle</h3>
+
+  <div class="grid">
+    <div class="info-card">
+      <h3>1. Predict</h3>
+      <p>Use the transition matrix to estimate the next state.</p>
+      <div class="formula">b' = b × T</div>
+    </div>
+    <div class="info-card">
+      <h3>2. Correct</h3>
+      <p>Multiply the predicted belief by the observation likelihood.</p>
+      <div class="formula">b'' = b' × O(e)</div>
+    </div>
+    <div class="info-card">
+      <h3>3. Normalize</h3>
+      <p>Make the probabilities sum to 1.</p>
+      <div class="formula">b = b'' / Σb''</div>
+    </div>
+  </div>
+
+  <h3>Interactive HMM Filtering Demonstration</h3>
+
+  <p>
+    Start with an initial belief of 80% Healthy and 20% Faulty.
+    Select sensor readings and see how the estimated condition changes.
+  </p>
+
+  <div class="interactive">
+    <label for="observation">Choose the sensor observation</label>
+    <select id="observation">
+      <option value="High">High temperature / vibration</option>
+      <option value="Normal">Normal temperature / vibration</option>
+    </select>
+
+    <button onclick="addObservation()">Add Observation</button>
+    <button onclick="resetFiltering()" style="background:#718096">Reset</button>
+
+    <div class="result" id="filterResult">
+      <strong>Initial belief</strong>
+      <p>Healthy: 80% · Faulty: 20%</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="prediction">
+  <h2>04. Prediction — What Will Happen Next?</h2>
+
+  <p>
+    Prediction estimates future hidden states without receiving
+    additional observations.
+  </p>
+
+  <div class="formula">
+    pₜ₊ₖ = pₜ × Tᵏ
+  </div>
+
+  <p>
+    Here, Tᵏ represents the transition matrix multiplied by itself
+    k times.
+  </p>
+
+  <div class="note">
+    <strong>Example:</strong> If a machine is currently estimated to be
+    80% Healthy and 20% Faulty, the transition matrix can be used
+    to estimate its condition one or more steps into the future.
+  </div>
+
+  <h3>Filtering vs. Prediction</h3>
+
+  <table>
+    <tr>
+      <th>Filtering</th>
+      <th>Prediction</th>
+    </tr>
+    <tr>
+      <td>Uses new observations.</td>
+      <td>Does not use new observations.</td>
+    </tr>
+    <tr>
+      <td>Estimates the current state.</td>
+      <td>Estimates a future state.</td>
+    </tr>
+    <tr>
+      <td>Useful for real-time monitoring.</td>
+      <td>Useful for forecasting and maintenance planning.</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="smoothing">
+  <h2>05. Smoothing — What Was Happening Then?</h2>
+
+  <p>
+    Smoothing estimates a past hidden state using both past and future
+    observations.
+  </p>
+
+  <div class="formula">
+    P(Xₖ | e₁:ₜ), where k &lt; T
+  </div>
+
+  <p>
+    Unlike filtering, smoothing has access to the complete observation
+    sequence. This can improve the estimate of an earlier hidden state.
+  </p>
+
+  <h3>Forward–Backward Algorithm</h3>
+
+  <div class="diagram">
+    <div class="node">Forward<br>Past evidence</div>
+    <div class="arrow">+</div>
+    <div class="node">Backward<br>Future evidence</div>
+    <div class="arrow">→</div>
+    <div class="node">Smoothed<br>Estimate</div>
+  </div>
+
+  <div class="formula">
+    P(Xₖ | e₁:ₜ) ∝ forwardₖ × backwardₖ
+  </div>
+
+  <div class="note">
+    Smoothing is especially useful when analyzing historical sensor data
+    after the complete sequence has been collected.
+  </div>
+</section>
+
+<section class="section" id="viterbi">
+  <h2>06. Viterbi Algorithm — Which Path Is Best?</h2>
+
+  <p>
+    The Viterbi algorithm finds the single most probable sequence
+    of hidden states that could have generated the observations.
+  </p>
+
+  <div class="formula">
+    X*₁:ₜ = argmax P(X₁:ₜ | e₁:ₜ)
+  </div>
+
+  <p>
+    Filtering sums the probabilities of possible paths. Viterbi instead
+    selects the highest-probability path using the MAX operator.
+  </p>
+
+  <h3>Viterbi Recurrence</h3>
+
+  <div class="formula">
+    δₜ(j) = Oⱼ(eₜ) × maxᵢ [δₜ₋₁(i) × Tᵢⱼ]
+  </div>
+
+  <ul>
+    <li>δ stores the best probability of a path ending in each state.</li>
+    <li>MAX selects the best previous state.</li>
+    <li>Backpointers remember which previous state was selected.</li>
+    <li>Backtracking reconstructs the most probable sequence.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Important distinction:</strong> Choosing the most probable
+    state independently at every time step does not necessarily produce
+    the globally most probable sequence.
+  </div>
+
+  <h3>Filtering vs. Viterbi</h3>
+
+  <table>
+    <tr>
+      <th>Filtering</th>
+      <th>Viterbi</th>
+    </tr>
+    <tr>
+      <td>Uses SUM (Σ).</td>
+      <td>Uses MAX.</td>
+    </tr>
+    <tr>
+      <td>Finds probability of each current state.</td>
+      <td>Finds one best complete state sequence.</td>
+    </tr>
+    <tr>
+      <td>Real-time state estimation.</td>
+      <td>Speech recognition and sequence decoding.</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="comparison">
+  <h2>07. The Four Fundamental Inference Tasks</h2>
+
+  <table>
+    <tr>
+      <th>Task</th>
+      <th>Main Question</th>
+      <th>Algorithm</th>
+      <th>Operator</th>
+    </tr>
+    <tr>
+      <td>Filtering</td>
+      <td>What is happening now?</td>
+      <td>Forward</td>
+      <td>SUM</td>
+    </tr>
+    <tr>
+      <td>Prediction</td>
+      <td>What will happen next?</td>
+      <td>Matrix power</td>
+      <td>Matrix multiplication</td>
+    </tr>
+    <tr>
+      <td>Smoothing</td>
+      <td>What happened in the past?</td>
+      <td>Forward–Backward</td>
+      <td>SUM</td>
+    </tr>
+    <tr>
+      <td>Decoding</td>
+      <td>Which complete path is most likely?</td>
+      <td>Viterbi</td>
+      <td>MAX</td>
+    </tr>
+  </table>
+</section>
+
+<section class="section" id="python">
+  <h2>08. Python Implementation</h2>
+
+  <p>
+    We can implement HMM filtering using NumPy. The example below
+    processes two consecutive High sensor observations.
+  </p>
+
+  <div class="code">import numpy as np
+
+# Transition matrix
+T = np.array([
+    [0.90, 0.10],
+    [0.20, 0.80]
+])
+
+# Emission probabilities
+O = {
+    "Normal": np.array([0.80, 0.30]),
+    "High": np.array([0.20, 0.70])
+}
+
+# Initial belief
+belief = np.array([0.80, 0.20])
+
+observations = ["High", "High"]
+
+for t, obs in enumerate(observations):
+
+    # Predict after the first observation
+    if t > 0:
+        belief = belief @ T
+
+    # Correct using the observation
+    belief = belief * O[obs]
+
+    # Normalize
+    belief = belief / belief.sum()
+
+    print(
+        f"Time {t+1}: "
+        f"Healthy={belief[0]:.3f}, "
+        f"Faulty={belief[1]:.3f}"
+    )</div>
+
+  <h3>Expected Output</h3>
+
+  <div class="code">Time 1: Healthy=0.533, Faulty=0.467
+Time 2: Healthy=0.277, Faulty=0.723</div>
+
+  <h3>Viterbi Decoding with hmmlearn</h3>
+
+  <p>
+    The hmmlearn library provides tools for working with Hidden Markov Models.
+  </p>
+
+  <div class="code">import numpy as np
+from hmmlearn.hmm import CategoricalHMM
+
+model = CategoricalHMM(
+    n_components=2,
+    init_params="",
+    params=""
+)
+
+model.startprob_ = np.array([0.80, 0.20])
+
+model.transmat_ = np.array([
+    [0.90, 0.10],
+    [0.20, 0.80]
+])
+
+model.emissionprob_ = np.array([
+    [0.80, 0.20],
+    [0.30, 0.70]
+])
+
+# 0 = Normal, 1 = High
+observations = np.array([[1], [1], [0]])
+
+best_path = model.predict(observations)
+
+print("Most probable state sequence:", best_path)</div>
+
+  <div class="note">
+    Install the libraries before running the examples:
+    <br><br>
+    <code>pip install numpy hmmlearn</code>
+    <br><br>
+    In this model, state 0 means Healthy and state 1 means Faulty.
+  </div>
+</section>
+
+<section class="section" id="quiz">
+  <h2>09. Knowledge Check</h2>
+  <p>Test your understanding of Hidden Markov Models.</p>
+
+  <div id="quizContainer"></div>
+
+  <button onclick="checkQuiz()">Check Answers</button>
+  <div class="quiz-result" id="quizResult"></div>
+</section>
+
+<div class="footer">
+  <p>QAIRU — Qazaq AI Research University</p>
+  <p>AI Fundamentals · Prepared by Abilashim Miras</p>
+  <p style="margin-top:15px">
+    <a href="../index.html">← Return to Dashboard</a>
+    &nbsp; | &nbsp;
+    <a href="chapter7.html">Next Chapter →</a>
+  </p>
+</div>
+
+</main>
+</div>
+
+<script>
+// Reading progress
+window.addEventListener("scroll", () => {
+  const total = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = total > 0 ? window.scrollY / total * 100 : 0;
+  document.getElementById("progress").style.width = progress + "%";
+});
+
+// HMM filtering demonstration
+const transition = [
+  [0.90, 0.10],
+  [0.20, 0.80]
+];
+
+const emissions = {
+  High: [0.20, 0.70],
+  Normal: [0.80, 0.30]
+};
+
+let belief = [0.80, 0.20];
+let observationCount = 0;
+
+function addObservation() {
+  const observation = document.getElementById("observation").value;
+
+  // Predict after the first observation
+  if (observationCount > 0) {
+    belief = [
+      belief[0] * transition[0][0] +
+      belief[1] * transition[1][0],
+
+      belief[0] * transition[0][1] +
+      belief[1] * transition[1][1]
+    ];
+  }
+
+  // Correct
+  belief = [
+    belief[0] * emissions[observation][0],
+    belief[1] * emissions[observation][1]
+  ];
+
+  // Normalize
+  const total = belief[0] + belief[1];
+  belief = belief.map(value => value / total);
+
+  observationCount++;
+
+  document.getElementById("filterResult").innerHTML = `
+    <strong>Observation ${observationCount}: ${observation}</strong>
+    <div class="bar-row">
+      <div class="bar-label">
+        <span>Healthy</span>
+        <strong>${(belief[0] * 100).toFixed(1)}%</strong>
+      </div>
+      <div class="bar-bg">
+        <div class="bar-fill" style="width:${belief[0] * 100}%"></div>
+      </div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">
+        <span>Faulty</span>
+        <strong>${(belief[1] * 100).toFixed(1)}%</strong>
+      </div>
+      <div class="bar-bg">
+        <div class="bar-fill" style="width:${belief[1] * 100}%"></div>
+      </div>
+    </div>
+    <p>Observations processed: ${observationCount}</p>
+  `;
+}
+
+function resetFiltering() {
+  belief = [0.80, 0.20];
+  observationCount = 0;
+
+  document.getElementById("filterResult").innerHTML = `
+    <strong>Initial belief</strong>
+    <p>Healthy: 80% · Faulty: 20%</p>
+  `;
+}
+
+// Quiz
+const questions = [
+  {
+    question: "1. What does an HMM estimate?",
+    options: [
+      "Only visible observations",
+      "Hidden states from observations",
+      "Only future rewards"
+    ],
+    answer: 1
+  },
+  {
+    question: "2. What are the three HMM components?",
+    options: [
+      "π, T, O",
+      "CNN, RNN, LSTM",
+      "Input, Output, Loss"
+    ],
+    answer: 0
+  },
+  {
+    question: "3. Which algorithm is used for filtering?",
+    options: [
+      "Viterbi",
+      "Forward Algorithm",
+      "Gradient Descent"
+    ],
+    answer: 1
+  },
+  {
+    question: "4. Which algorithm finds the most probable state sequence?",
+    options: [
+      "Viterbi",
+      "K-Means",
+      "Linear Regression"
+    ],
+    answer: 0
+  },
+  {
+    question: "5. What is the main difference between filtering and Viterbi?",
+    options: [
+      "Both use MAX",
+      "Filtering uses SUM; Viterbi uses MAX",
+      "Filtering does not use observations"
+    ],
+    answer: 1
+  }
+];
+
+const quizContainer = document.getElementById("quizContainer");
+
+questions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.className = "quiz-question";
+
+  let html = `<p>${q.question}</p>`;
+
+  q.options.forEach((option, j) => {
+    html += `
+      <label>
+        <input type="radio" name="q${i}" value="${j}">
+        ${option}
+      </label>
+    `;
+  });
+
+  div.innerHTML = html;
+  quizContainer.appendChild(div);
+});
+
+function checkQuiz() {
+  let score = 0;
+  let answered = 0;
+
+  questions.forEach((q, i) => {
+    const selected = document.querySelector(
+      `input[name="q${i}"]:checked`
+    );
+
+    if (selected) {
+      answered++;
+      if (Number(selected.value) === q.answer) {
+        score++;
+      }
+    }
+  });
+
+  const result = document.getElementById("quizResult");
+
+  if (answered < questions.length) {
+    result.textContent =
+      `You answered ${answered} of ${questions.length} questions. Complete the quiz first.`;
+    return;
+  }
+
+  result.textContent =
+    `Your score: ${score} / ${questions.length}`;
+}
+</script>
+
+</body>
+</html>

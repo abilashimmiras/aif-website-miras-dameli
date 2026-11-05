@@ -1,0 +1,1014 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 | AI Fundamentals</title>
+<link rel="stylesheet" href="../style.css">
+
+<style>
+.game-tree {
+    background: #f4f7fd;
+    border-radius: 14px;
+    padding: 25px 12px;
+    overflow-x: auto;
+    text-align: center;
+}
+.tree-level {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    margin: 18px 0;
+}
+.tree-node {
+    min-width: 45px;
+    padding: 11px;
+    border-radius: 9px;
+    background: white;
+    border: 2px solid #2459d3;
+    color: #2459d3;
+    font-weight: 700;
+    font-size: 12px;
+}
+.tree-node.max { background:#2459d3;color:white; }
+.tree-node.min { background:#edf3ff; }
+.tree-node.leaf { border-color:#cddcff;color:#17233d; }
+.tree-node.pruned {
+    border-color:#d5a0a0;
+    background:#fff0f0;
+    color:#b34b4b;
+    text-decoration:line-through;
+}
+.tree-label {
+    color:#7d899d;
+    font-size:10px;
+    margin-top:6px;
+}
+.demo-panel {
+    background:white;
+    border:1px solid #e9edf5;
+    border-radius:15px;
+    padding:23px;
+    margin-top:20px;
+}
+.demo-panel button {
+    border:0;
+    border-radius:8px;
+    background:#2459d3;
+    color:white;
+    padding:11px 17px;
+    cursor:pointer;
+    font-weight:600;
+}
+.demo-panel button.secondary {
+    background:#edf3ff;
+    color:#2459d3;
+}
+.demo-status {
+    font-size:12px;
+    line-height:1.8;
+    color:#64728b;
+    margin-top:15px;
+}
+.game-grid {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+.game-card {
+    background:white;
+    border:1px solid #e9edf5;
+    border-radius:13px;
+    padding:22px;
+}
+.game-card h3 {font-size:15px;margin-bottom:10px;}
+.game-card p {
+    font-size:12px;
+    line-height:1.8;
+    color:#7d899d;
+}
+.player-label {
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:6px;
+    background:#edf3ff;
+    color:#2459d3;
+    font-size:10px;
+    font-weight:700;
+}
+.equation {
+    background:#edf3ff;
+    border-radius:10px;
+    padding:17px;
+    text-align:center;
+    font-size:20px;
+    font-weight:700;
+    color:#2459d3;
+    margin:15px 0;
+}
+.code-concept pre {
+    background:#15233d;
+    color:#dce8ff;
+    padding:20px;
+    border-radius:10px;
+    overflow-x:auto;
+    font-size:12px;
+    line-height:1.8;
+}
+.probability-demo {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:20px;
+}
+.probability-option {
+    background:#f4f7fd;
+    border-radius:10px;
+    padding:15px;
+    text-align:center;
+}
+.probability-option strong {
+    display:block;
+    color:#2459d3;
+    font-size:19px;
+}
+.probability-option span {
+    color:#7d899d;
+    font-size:11px;
+}
+@media(max-width:700px) {
+    .game-grid {grid-template-columns:1fr;}
+    .tree-level {gap:12px;}
+    .tree-node {min-width:35px;padding:8px 5px;}
+    .probability-demo {grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body class="lesson-page">
+
+<header class="lesson-topbar">
+    <a href="../index.html" class="back-link">← Back to Dashboard</a>
+    <div class="lesson-brand">QAIRU <span>· AIF</span></div>
+</header>
+
+<main class="lesson-container">
+
+<div class="lesson-breadcrumb">
+AI Fundamentals / Lecture Chapters / Chapter 03
+</div>
+
+<!-- HERO -->
+
+<section class="lesson-hero">
+    <span class="lesson-tag">LECTURE 03 · GAME THEORY</span>
+    <h1>Adversarial Search<br><span>& Game Trees</span></h1>
+    <p>
+        Explore how intelligent agents make strategic decisions
+        against opponents, evaluate possible outcomes, and select
+        the best moves using game-tree algorithms.
+    </p>
+    <div class="lesson-meta">
+        <span>AI Fundamentals</span>
+        <span>QAIRU</span>
+        <span>Academic Year 2026</span>
+    </div>
+</section>
+
+<!-- SECTION 01 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">01 · FOUNDATIONS</span>
+        <h2>Foundations of Adversarial Search</h2>
+        <p>
+            Adversarial search is used when multiple decision-makers
+            interact, and each player's actions influence the
+            possible outcomes of the game.
+        </p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <span class="concept-icon">⚔</span>
+            <h3>Competition</h3>
+            <p>
+                Players have competing objectives and try to
+                choose actions that improve their own outcomes.
+            </p>
+        </article>
+
+        <article class="concept-card">
+            <span class="concept-icon">◎</span>
+            <h3>Strategic Decisions</h3>
+            <p>
+                The value of a move depends on the possible
+                responses of other players.
+            </p>
+        </article>
+
+        <article class="concept-card">
+            <span class="concept-icon">♟</span>
+            <h3>Game Trees</h3>
+            <p>
+                A tree represents possible moves, resulting
+                states, and eventual game outcomes.
+            </p>
+        </article>
+    </div>
+
+    <div class="note-box">
+        <strong>Core difference</strong>
+        <p>
+            In single-agent search, the agent controls the actions
+            being considered. In adversarial search, the agent must
+            also account for an opponent's strategic responses.
+        </p>
+    </div>
+</section>
+
+<!-- SECTION 02 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">02 · GAME FORMULATION</span>
+        <h2>Types of Games</h2>
+        <p>
+            Games can be classified according to how outcomes are
+            determined and how information is shared.
+        </p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <h3>Deterministic</h3>
+            <p>
+                The next state is completely determined by
+                the current state and selected action.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Stochastic</h3>
+            <p>
+                Random events, such as dice rolls, influence
+                the next state.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Two-player / Multiplayer</h3>
+            <p>
+                Games can involve two participants or
+                multiple decision-makers.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Zero-sum</h3>
+            <p>
+                One player's gain corresponds to an equal
+                loss for the opponent.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>General-sum</h3>
+            <p>
+                Players can have different interests,
+                including outcomes where both benefit.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Perfect / Imperfect Information</h3>
+            <p>
+                Perfect-information games expose the full
+                game state. Imperfect-information games
+                contain hidden information.
+            </p>
+        </article>
+    </div>
+
+    <div class="lesson-heading" style="margin-top:35px">
+        <h2>Two-Player Zero-Sum Game Model</h2>
+        <p>A formal game can be described using these components.</p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <h3>States (S)</h3>
+            <p>The set of all possible game configurations.</p>
+        </article>
+        <article class="concept-card">
+            <h3>Initial State (s₀)</h3>
+            <p>The starting configuration of the game.</p>
+        </article>
+        <article class="concept-card">
+            <h3>Players</h3>
+            <p>MAX tries to maximize utility; MIN tries to minimize it.</p>
+        </article>
+        <article class="concept-card">
+            <h3>Actions (A)</h3>
+            <p>The legal moves available to the current player.</p>
+        </article>
+        <article class="concept-card">
+            <h3>Transition Function</h3>
+            <p>Maps a state and action to the resulting state.</p>
+        </article>
+        <article class="concept-card">
+            <h3>Terminal Utility</h3>
+            <p>Assigns a numerical value to a finished game.</p>
+        </article>
+    </div>
+</section>
+
+<!-- SECTION 03 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">03 · MINIMAX</span>
+        <h2>The Minimax Algorithm</h2>
+        <p>
+            Minimax chooses the best move while assuming that
+            the opponent also plays optimally.
+        </p>
+    </div>
+
+    <div class="game-grid">
+        <article class="game-card">
+            <span class="player-label">MAX PLAYER</span>
+            <h3>Maximize Utility</h3>
+            <p>
+                Selects the action leading to the highest
+                available value.
+            </p>
+            <div class="equation">
+                V(s) = max V(s')
+            </div>
+        </article>
+
+        <article class="game-card">
+            <span class="player-label">MIN PLAYER</span>
+            <h3>Minimize Utility</h3>
+            <p>
+                Selects the action leading to the lowest
+                available value.
+            </p>
+            <div class="equation">
+                V(s) = min V(s')
+            </div>
+        </article>
+    </div>
+
+    <div class="formula-card" style="margin-top:22px">
+        <span class="formula-label">MINIMAX RECURRENCE</span>
+        <div class="main-formula">V(s) = max / min V(s')</div>
+        <p>
+            Terminal states receive their utility values.
+            MAX and MIN nodes propagate values upward
+            using maximum and minimum operations.
+        </p>
+    </div>
+
+    <div class="interactive-panel">
+        <h3>Interactive Minimax Game Tree</h3>
+        <p style="font-size:12px;color:#7d899d;margin-top:8px">
+            Follow the values from the terminal leaves toward
+            the root to see how MAX selects its move.
+        </p>
+
+        <div class="game-tree">
+            <div class="tree-level">
+                <div>
+                    <div class="tree-node max">MAX = ?</div>
+                    <div class="tree-label">ROOT</div>
+                </div>
+            </div>
+
+            <div class="tree-level">
+                <div>
+                    <div class="tree-node min">MIN = ?</div>
+                    <div class="tree-label">LEFT</div>
+                </div>
+                <div>
+                    <div class="tree-node min">MIN = ?</div>
+                    <div class="tree-label">RIGHT</div>
+                </div>
+            </div>
+
+            <div class="tree-level">
+                <div class="tree-node leaf">3</div>
+                <div class="tree-node leaf">5</div>
+                <div class="tree-node leaf">2</div>
+                <div class="tree-node leaf">9</div>
+            </div>
+        </div>
+
+        <div class="demo-panel" style="padding:0;border:0">
+            <button onclick="calculateMinimax()">Calculate Minimax</button>
+            <button class="secondary" onclick="resetMinimax()">Reset</button>
+            <div class="demo-status" id="minimaxStatus">
+                Press Calculate Minimax to evaluate the game tree.
+            </div>
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>Important assumption</strong>
+        <p>
+            Minimax assumes both players make optimal decisions.
+            MAX chooses the highest value while MIN chooses
+            the lowest value.
+        </p>
+    </div>
+</section>
+
+<!-- SECTION 04 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">04 · SEARCH OPTIMIZATION</span>
+        <h2>Alpha-Beta Pruning</h2>
+        <p>
+            Alpha-Beta Pruning improves Minimax by skipping branches
+            that cannot influence the final decision.
+        </p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <span class="concept-icon">α</span>
+            <h3>Alpha (α)</h3>
+            <p>
+                The highest value MAX can guarantee so far
+                along the current search path.
+            </p>
+            <span class="concept-caption">MAXIMUM LOWER BOUND</span>
+        </article>
+
+        <article class="concept-card">
+            <span class="concept-icon">β</span>
+            <h3>Beta (β)</h3>
+            <p>
+                The lowest value MIN can guarantee so far
+                along the current search path.
+            </p>
+            <span class="concept-caption">MINIMUM UPPER BOUND</span>
+        </article>
+
+        <article class="concept-card">
+            <span class="concept-icon">✂</span>
+            <h3>Pruning</h3>
+            <p>
+                Stop evaluating remaining children when
+                the current branch cannot improve the decision.
+            </p>
+            <span class="concept-caption">α ≥ β</span>
+        </article>
+    </div>
+
+    <div class="formula-card">
+        <span class="formula-label">PRUNING CONDITION</span>
+        <div class="main-formula">α ≥ β</div>
+        <p>
+            Once alpha becomes greater than or equal to beta,
+            the remaining children of the current node can be skipped.
+        </p>
+    </div>
+
+    <div class="interactive-panel">
+        <h3>Interactive Alpha-Beta Pruning</h3>
+        <p style="font-size:12px;color:#7d899d;margin-top:8px">
+            This example explores the left branch first, establishing
+            alpha = 3. The right MIN node then encounters a value
+            of 2, making the remaining branch unnecessary.
+        </p>
+
+        <div class="game-tree" id="pruningTree">
+            <div class="tree-level">
+                <div class="tree-node max">MAX</div>
+            </div>
+            <div class="tree-level">
+                <div class="tree-node min">MIN</div>
+                <div class="tree-node min">MIN</div>
+            </div>
+            <div class="tree-level">
+                <div class="tree-node leaf">3</div>
+                <div class="tree-node leaf">5</div>
+                <div class="tree-node leaf">2</div>
+                <div class="tree-node leaf">9</div>
+            </div>
+        </div>
+
+        <div class="demo-panel" style="padding:0;border:0">
+            <button onclick="runPruning()">Run Pruning Demo</button>
+            <button class="secondary" onclick="resetPruning()">Reset</button>
+            <div class="demo-status" id="pruningStatus">
+                Ready to explore the pruning process.
+            </div>
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>Does pruning change the answer?</strong>
+        <p>
+            No. Alpha-Beta Pruning produces the same optimal
+            decision as Minimax. It simply avoids unnecessary
+            evaluations.
+        </p>
+    </div>
+
+    <div class="algorithm-card">
+        <h3>Computational Complexity</h3>
+        <div class="algorithm-details">
+            <div>
+                <span>Standard Minimax</span>
+                <strong>O(bᵐ)</strong>
+            </div>
+            <div>
+                <span>Optimal Alpha-Beta</span>
+                <strong>O(bᵐ/²)</strong>
+            </div>
+            <div>
+                <span>Space Complexity</span>
+                <strong>O(bm)</strong>
+            </div>
+            <div>
+                <span>Key factor</span>
+                <strong>Move ordering</strong>
+            </div>
+        </div>
+        <p style="font-size:12px;color:#7d899d;margin-top:15px">
+            Here, b is the branching factor and m is the maximum
+            search depth. The improved time complexity assumes
+            ideal move ordering.
+        </p>
+    </div>
+</section>
+
+<!-- SECTION 05 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">05 · RESOURCE LIMITS</span>
+        <h2>Depth-Limited Search & Evaluation</h2>
+        <p>
+            Large game trees cannot always be explored completely.
+            Depth limits allow an agent to make decisions using
+            estimates of non-terminal states.
+        </p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <h3>Depth Limit</h3>
+            <p>
+                Search stops after reaching a predefined
+                maximum depth.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Evaluation Function</h3>
+            <p>
+                Estimates how favorable a non-terminal
+                game state is for a player.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Horizon Effect</h3>
+            <p>
+                An important future event may remain just
+                beyond the search depth and therefore
+                be missed by the evaluation.
+            </p>
+        </article>
+    </div>
+
+    <div class="formula-card" style="margin-top:20px">
+        <span class="formula-label">DEPTH-LIMITED EVALUATION</span>
+        <div class="main-formula">V(s) = Eval(s)</div>
+        <p>
+            At the depth cutoff, the evaluation function
+            estimates the value of the current state.
+        </p>
+    </div>
+
+    <div class="note-box">
+        <strong>Chess example</strong>
+        <p>
+            An evaluation function might combine material,
+            mobility, and spatial control into a weighted score.
+            The result estimates which player has the advantage.
+        </p>
+    </div>
+</section>
+
+<!-- SECTION 06 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">06 · STOCHASTIC GAMES</span>
+        <h2>Expectimax Search</h2>
+        <p>
+            When random events affect the game, Expectimax uses
+            expected utility rather than assuming an opponent
+            always chooses the worst possible outcome.
+        </p>
+    </div>
+
+    <div class="concept-grid">
+        <article class="concept-card">
+            <h3>MAX Nodes</h3>
+            <p>
+                Select the action with the highest expected
+                utility.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Chance Nodes</h3>
+            <p>
+                Calculate a probability-weighted average
+                of possible outcomes.
+            </p>
+        </article>
+        <article class="concept-card">
+            <h3>Random Events</h3>
+            <p>
+                Model dice rolls, random behavior, and
+                other uncertain outcomes.
+            </p>
+        </article>
+    </div>
+
+    <div class="formula-card" style="margin-top:20px">
+        <span class="formula-label">EXPECTED UTILITY</span>
+        <div class="main-formula">V(s) = Σ P(s') × V(s')</div>
+        <p>
+            Each possible successor contributes its value
+            multiplied by its probability.
+        </p>
+    </div>
+
+    <div class="interactive-panel">
+        <h3>Interactive Expectimax Calculator</h3>
+        <p style="font-size:12px;color:#7d899d;margin-top:8px">
+            Consider a random event with three possible outcomes.
+            Change their values and calculate the expected utility.
+        </p>
+
+        <div class="probability-demo">
+            <div class="probability-option">
+                <strong>0.5</strong>
+                <span>Probability</span>
+                <p style="margin-top:8px;font-size:11px">Outcome A: 10</p>
+            </div>
+            <div class="probability-option">
+                <strong>0.3</strong>
+                <span>Probability</span>
+                <p style="margin-top:8px;font-size:11px">Outcome B: 5</p>
+            </div>
+            <div class="probability-option">
+                <strong>0.2</strong>
+                <span>Probability</span>
+                <p style="margin-top:8px;font-size:11px">Outcome C: 0</p>
+            </div>
+        </div>
+
+        <div class="equation">
+            EV = (0.5 × 10) + (0.3 × 5) + (0.2 × 0)
+        </div>
+
+        <button onclick="calculateExpectimax()">Calculate Expected Utility</button>
+        <div class="demo-status" id="expectimaxStatus">
+            Press the button to calculate the expected value.
+        </div>
+    </div>
+
+    <div class="note-box">
+        <strong>Important distinction</strong>
+        <p>
+            Minimax assumes a strategic opponent who chooses
+            the worst outcome for MAX. Expectimax models
+            probabilistic outcomes using their expected values.
+        </p>
+    </div>
+</section>
+
+<!-- SECTION 07 -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">07 · COMPARISON</span>
+        <h2>Minimax vs. Alpha-Beta vs. Expectimax</h2>
+        <p>
+            These algorithms use different models of opponents
+            and environments.
+        </p>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="lesson-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Minimax</th>
+                    <th>Alpha-Beta</th>
+                    <th>Expectimax</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Model</td>
+                    <td>Optimal opponent</td>
+                    <td>Optimal opponent</td>
+                    <td>Random events</td>
+                </tr>
+                <tr>
+                    <td>Node types</td>
+                    <td>MAX / MIN</td>
+                    <td>MAX / MIN</td>
+                    <td>MAX / CHANCE</td>
+                </tr>
+                <tr>
+                    <td>Evaluation</td>
+                    <td>Max / Min</td>
+                    <td>Max / Min with bounds</td>
+                    <td>Expected value</td>
+                </tr>
+                <tr>
+                    <td>Time</td>
+                    <td>O(bᵐ)</td>
+                    <td>O(bᵐ/²) ideal</td>
+                    <td>O(bᵐ)</td>
+                </tr>
+                <tr>
+                    <td>Pruning</td>
+                    <td>No</td>
+                    <td>Yes</td>
+                    <td>Generally limited</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- PYTHON -->
+
+<section class="lesson-section">
+    <div class="lesson-heading">
+        <span class="section-label">PYTHON IMPLEMENTATION</span>
+        <h2>Game Tree Algorithms in Python</h2>
+        <p>
+            Explore the programming patterns used to implement
+            adversarial search.
+        </p>
+    </div>
+
+    <div class="code-concept">
+        <h3>1. Depth-Limited Alpha-Beta Search</h3>
+        <p>
+            The recursive function evaluates states while
+            updating alpha and beta bounds.
+        </p>
+        <pre><code>import math
+
+def alpha_beta(state, depth, alpha, beta, maximizing):
+
+    if depth == 0 or state.is_terminal():
+        return state.evaluate()
+
+    if maximizing:
+        value = -math.inf
+
+        for child in state.successors():
+
+            value = max(
+                value,
+                alpha_beta(
+                    child, depth - 1,
+                    alpha, beta, False
+                )
+            )
+
+            alpha = max(alpha, value)
+
+            if alpha >= beta:
+                break
+
+        return value
+
+    else:
+        value = math.inf
+
+        for child in state.successors():
+
+            value = min(
+                value,
+                alpha_beta(
+                    child, depth - 1,
+                    alpha, beta, True
+                )
+            )
+
+            beta = min(beta, value)
+
+            if beta <= alpha:
+                break
+
+        return value</code></pre>
+
+        <div class="definition-box">
+            <strong>Key concepts:</strong>
+            <ul>
+                <li>Recursion explores child states.</li>
+                <li>Alpha tracks MAX's best guaranteed value.</li>
+                <li>Beta tracks MIN's best guaranteed value.</li>
+                <li>The break statement stops unnecessary exploration.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="code-concept">
+        <h3>2. Expectimax Evaluation</h3>
+        <p>
+            A chance node calculates the weighted sum of
+            possible successor values.
+        </p>
+        <pre><code>def exp_value(state):
+
+    if state.is_terminal():
+        return state.utility()
+
+    total_value = 0.0
+
+    for child, prob in state.get_stochastic_successors():
+
+        total_value += prob * value(child)
+
+    return total_value</code></pre>
+
+        <div class="definition-box">
+            <strong>Key concept:</strong>
+            Each successor contributes according to its
+            probability of occurring.
+        </div>
+    </div>
+</section>
+
+<!-- TAKEAWAYS -->
+
+<section class="takeaways">
+    <span class="section-label">CHAPTER SUMMARY</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+        <li>Adversarial search models competing decision-makers.</li>
+        <li>MAX maximizes utility while MIN minimizes it.</li>
+        <li>Minimax assumes optimal play from both players.</li>
+        <li>Alpha-Beta Pruning skips irrelevant branches without changing the result.</li>
+        <li>Alpha and beta represent search bounds.</li>
+        <li>Move ordering strongly influences pruning efficiency.</li>
+        <li>Depth-limited search uses evaluation functions.</li>
+        <li>The horizon effect can hide important future events.</li>
+        <li>Expectimax handles stochastic outcomes using probabilities.</li>
+        <li>The choice of algorithm should match the game environment.</li>
+    </ul>
+</section>
+
+<!-- FOOTER -->
+
+<section class="lesson-footer">
+    <div>
+        <span>AI FUNDAMENTALS · QAIRU</span>
+        <h2>Chapter 03 Completed</h2>
+        <p>
+            Prepared by Abilashim Miras ·
+            Professor Gulzhan Uskenbayeva
+        </p>
+    </div>
+    <a href="../index.html" class="primary-btn">
+        Back to Dashboard →
+    </a>
+</section>
+
+</main>
+
+<footer class="lesson-bottom">
+    © 2026 QAIRU — Qazaq AI Research University
+</footer>
+
+<script>
+
+// MINIMAX DEMONSTRATION
+
+function calculateMinimax() {
+
+    const left = Math.min(3, 5);
+    const right = Math.min(2, 9);
+    const root = Math.max(left, right);
+
+    document.getElementById("minimaxStatus").innerHTML =
+        "Step 1: Left MIN node = min(3, 5) = <b>" + left + "</b><br>" +
+        "Step 2: Right MIN node = min(2, 9) = <b>" + right + "</b><br>" +
+        "Step 3: Root MAX = max(3, 2) = <b>" + root + "</b><br>" +
+        "Final decision: MAX chooses the LEFT branch with value " + root + ".";
+}
+
+function resetMinimax() {
+    document.getElementById("minimaxStatus").textContent =
+        "Press Calculate Minimax to evaluate the game tree.";
+}
+
+
+// ALPHA-BETA PRUNING DEMONSTRATION
+
+let pruningStep = 0;
+
+const pruningMessages = [
+    "Starting search: α = -∞, β = +∞.",
+    "Explore left MIN node: first leaf is 3. Its current value is 3.",
+    "Explore second left leaf: 5. MIN chooses min(3, 5) = 3. Root MAX updates α = 3.",
+    "Explore right MIN node: first leaf is 2. MIN updates β = 2.",
+    "Since β ≤ α (2 ≤ 3), prune the remaining leaf 9.",
+    "Completed! Root value remains 3. The leaf 9 was never evaluated."
+];
+
+function drawPruningTree() {
+
+    const levels = [
+        ["MAX"],
+        ["MIN", "MIN"],
+        ["3", "5", "2", "9"]
+    ];
+
+    let html = "";
+
+    levels.forEach((level, levelIndex) => {
+
+        html += '<div class="tree-level">';
+
+        level.forEach((node, index) => {
+
+            let classes = "tree-node ";
+
+            if (levelIndex === 0) classes += "max";
+            else if (levelIndex === 1) classes += "min";
+            else classes += "leaf";
+
+            if (pruningStep >= 4 && levelIndex === 2 && index === 3) {
+                classes += " pruned";
+            }
+
+            html += '<div class="' + classes + '">' + node + '</div>';
+
+        });
+
+        html += '</div>';
+
+    });
+
+    document.getElementById("pruningTree").innerHTML = html;
+
+}
+
+function runPruning() {
+
+    if (pruningStep < pruningMessages.length - 1) {
+        pruningStep++;
+    }
+
+    drawPruningTree();
+
+    document.getElementById("pruningStatus").innerHTML =
+        "<b>Step " + pruningStep + ":</b> " +
+        pruningMessages[pruningStep];
+
+}
+
+function resetPruning() {
+
+    pruningStep = 0;
+    drawPruningTree();
+
+    document.getElementById("pruningStatus").textContent =
+        pruningMessages[0];
+
+}
+
+
+// EXPECTIMAX DEMONSTRATION
+
+function calculateExpectimax() {
+
+    const expected =
+        (0.5 * 10) +
+        (0.3 * 5) +
+        (0.2 * 0);
+
+    document.getElementById("expectimaxStatus").innerHTML =
+        "Calculation: (0.5 × 10) + (0.3 × 5) + (0.2 × 0)<br>" +
+        "Expected utility = <b>" + expected.toFixed(2) + "</b>.";
+}
+
+drawPruningTree();
+
+</script>
+
+</body>
+</html>
